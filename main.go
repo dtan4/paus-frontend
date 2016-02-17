@@ -25,7 +25,7 @@ func main() {
 		pubKey := c.PostForm("pubKey")
 
 		// libcompose does not support `docker-compose run`...
-		out, err := exec.Command("docker-compose", "run", "--rm", "gitreceive-upload-key", username, pubKey).Output()
+		out, err := exec.Command("docker-compose", "-p", "paus", "run", "--rm", "gitreceive-upload-key", username, pubKey).Output()
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
