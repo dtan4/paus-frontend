@@ -3,10 +3,15 @@ MAINTAINER Daisuke Fujita <dtanshi45@gmail.com> (@dtan4)
 
 ENV DOCKER_COMPOSE_VERSION 1.6.0
 
-RUN apk --update add ca-certificates bash curl docker && \
-    curl -L https://github.com/docker/compose/releases/download/1.6.0/run.sh > /usr/local/bin/docker-compose && \
+RUN apk --update add ca-certificates docker && \
+    wget -O /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-Linux-x86_64 && \
     chmod +x /usr/local/bin/docker-compose && \
-    apk del --purge ca-certificates curl && \
+    wget -O glibc.apk https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.22-r8/glibc-$GLIBC_VERSION.apk && \
+    wget -O glibc-bin.apk https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.22-r8/glibc-bin-$GLIBC_VERSION.apk && \
+    apk add --allow-untrusted glibc.apk glibc-bin.apk && \
+    /usr/glibc-compat/sbin/ldconfig /usr/glibc-compat/lib && \
+    rm glibc.apk glibc-bin.apk && \
+    apk del --purge ca-certificates && \
     rm -rf /var/cache/apk/*
 
 WORKDIR /app
