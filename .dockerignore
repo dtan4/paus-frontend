@@ -1,0 +1,7 @@
+*
+!Makefile
+!main.go
+!glide.lock
+!glide.yaml
+!templates/
+!bin/

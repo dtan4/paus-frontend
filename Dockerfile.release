@@ -1,0 +1,11 @@
+FROM alpine:3.3
+MAINTAINER Daisuke Fujita <dtanshi45@gmail.com> (@dtan4)
+
+WORKDIR /app
+
+COPY bin/paus-frontend /app/paus-frontend
+COPY templates /app/templates
+
+EXPOSE 8080
+
+CMD ["./paus-frontend"]

@@ -1,0 +1,30 @@
+FROM alpine:3.3
+MAINTAINER Daisuke Fujita <dtanshi45@gmail.com> (@dtan4)
+
+ENV GLIDE_VERSION 0.8.3
+
+COPY . /go/src/github.com/dtan4/paus
+RUN apk --update add git go make mercurial && \
+    wget -O /tmp/glide.tar.gz https://github.com/Masterminds/glide/releases/download/0.8.3/glide-$GLIDE_VERSION-linux-amd64.tar.gz && \
+    cd /tmp && \
+    tar zxf glide.tar.gz && \
+    cp linux-amd64/glide /usr/local/bin && \
+    export GOPATH=/go && \
+    export GO15VENDOREXPERIMENT=1 && \
+    cd /go/src/github.com/dtan4/paus && \
+    glide install && \
+    make build && \
+    mkdir /app && \
+    cp bin/paus-frontend /app/paus-frontend && \
+    cp -R templates /app/templates && \
+    cd /app && \
+    rm -rf /go && \
+    rm /usr/local/bin/glide && \
+    rm /tmp/glide.tar.gz && \
+    rm -rf /tmp/linux-amd64 && \
+    apk del --purge git go make mercurial
+
+WORKDIR /app
+EXPOSE 8080
+
+CMD ["./paus-frontend"]
