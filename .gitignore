@@ -27,3 +27,5 @@ _testmain.go
 *.test
 *.prof
 
+bin/*
+!bin/.keep
