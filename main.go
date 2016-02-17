@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os/exec"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,9 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"alert": false,
+			"alert":   false,
+			"error":   false,
+			"message": "",
 		})
 	})
 
@@ -21,10 +24,22 @@ func main() {
 		username := c.PostForm("username")
 		pubKey := c.PostForm("pubKey")
 
-		c.HTML(http.StatusCreated, "index.tmpl", gin.H{
-			"alert":   true,
-			"message": strings.Join([]string{username, ": ", pubKey}, " "),
-		})
+		// libcompose does not support `docker-compose run`...
+		out, err := exec.Command("docker-compose", "run", "--rm", "gitreceive-upload-key", username, pubKey).Output()
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": err.Error(),
+			})
+		} else {
+			c.HTML(http.StatusCreated, "index.tmpl", gin.H{
+				"alert":   true,
+				"error":   false,
+				"message": strings.Join([]string{"fingerprint: ", string(out)}, " "),
+			})
+		}
 	})
 
 	r.Run()
