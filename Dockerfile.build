@@ -1,7 +1,14 @@
 FROM alpine:3.3
 MAINTAINER Daisuke Fujita <dtanshi45@gmail.com> (@dtan4)
 
+ENV DOCKER_COMPOSE_VERSION 1.6.0
 ENV GLIDE_VERSION 0.8.3
+
+RUN apk --update add ca-certificates && \
+    wget -O /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-Linux-x86_64 && \
+    chmod +x /usr/local/bin/docker-compose && \
+    apk del --purge ca-certificates && \
+    rm -rf /var/cache/apk/*
 
 COPY . /go/src/github.com/dtan4/paus
 RUN apk --update add git go make mercurial && \
@@ -22,7 +29,8 @@ RUN apk --update add git go make mercurial && \
     rm /usr/local/bin/glide && \
     rm /tmp/glide.tar.gz && \
     rm -rf /tmp/linux-amd64 && \
-    apk del --purge git go make mercurial
+    apk del --purge git go make mercurial && \
+    rm -rf /var/cache/apk/*
 
 WORKDIR /app
 EXPOSE 8080

@@ -1,6 +1,14 @@
 FROM alpine:3.3
 MAINTAINER Daisuke Fujita <dtanshi45@gmail.com> (@dtan4)
 
+ENV DOCKER_COMPOSE_VERSION 1.6.0
+
+RUN apk --update add ca-certificates && \
+    wget -O /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-Linux-x86_64 && \
+    chmod +x /usr/local/bin/docker-compose && \
+    apk del --purge ca-certificates && \
+    rm -rf /var/cache/apk/*
+
 WORKDIR /app
 
 COPY bin/paus-frontend /app/paus-frontend
