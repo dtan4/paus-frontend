@@ -11,6 +11,8 @@
     <div class="container">
       <h1>Paus</h1>
 
+      <h3>1. Upload your name and SSH public key</h3>
+
       {{ if .alert }}
       <div class="alert {{ if .error }}alert-danger{{ else }}alert-success{{ end }}" role="alert">
         {{ .message }}
@@ -36,6 +38,25 @@
           </div>
         </div>
       </form>
+
+      <h3>2. Configure your <code>~/.ssh/config</code></h3>
+
+      <pre>
+Host paus
+  HostName &lt;hostname_or_ip_of_paus&gt;
+  User git
+  Port 2222
+  IdentityFile ~/.ssh/id_rsa</pre>
+
+      <h3>3. Add remote repository</h3>
+
+      <pre>
+$ git remote add paus git@paus:yourname/repository</pre>
+
+      <h3>4. <code>git push</code> and deploy!</h3>
+
+      <pre>
+$ git push paus master</pre>
     </div>
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
