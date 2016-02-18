@@ -12,7 +12,7 @@
       <h1>Paus</h1>
 
       {{ if .alert }}
-      <div class="alert {{ if .error }}alert-success{{ else }}alert-danger{{ end }}" role="alert">
+      <div class="alert {{ if .error }}alert-danger{{ else }}alert-success{{ end }}" role="alert">
         {{ .message }}
       </div>
       {{ end }}
