@@ -11,8 +11,8 @@
     <div class="container">
       <h1>Paus</h1>
 
-      {{ if `alert` }}
-      <div class="alert {{ if `error` }}alert-success{{ else }}alert-danger{{ end }}" role="alert">
+      {{ if .alert }}
+      <div class="alert {{ if .error }}alert-success{{ else }}alert-danger{{ end }}" role="alert">
         {{ .message }}
       </div>
       {{ end }}
