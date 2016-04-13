@@ -57,6 +57,24 @@ func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string 
 	return appURL(uriScheme, identifier, baseDomain)
 }
 
+func environmentVariables(keysAPI client.KeysAPI, username, appName string) (*map[string]string, error) {
+	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/", &client.GetOptions{Sort: true})
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := map[string]string{}
+
+	for _, node := range resp.Node.Nodes {
+		key := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/envs/", "", 1)
+		value := node.Value
+		result[key] = value
+	}
+
+	return &result, nil
+}
+
 func main() {
 	baseDomain := os.Getenv("BASE_DOMAIN")
 	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
@@ -120,15 +138,24 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
-			latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
+			envs, err := environmentVariables(keysAPI, username, appName)
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+					"error":   true,
+					"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				})
+			} else {
+				latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
 
-			c.HTML(http.StatusOK, "app.tmpl", gin.H{
-				"error":     false,
-				"user":      username,
-				"app":       appName,
-				"latestURL": latestURL,
-				"urls":      urls,
-			})
+				c.HTML(http.StatusOK, "app.tmpl", gin.H{
+					"error":     false,
+					"user":      username,
+					"app":       appName,
+					"latestURL": latestURL,
+					"urls":      urls,
+					"envs":      envs,
+				})
+			}
 		}
 	})
 

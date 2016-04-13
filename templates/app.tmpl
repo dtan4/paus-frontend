@@ -7,16 +7,40 @@
   </head>
   <body>
     <div class="container">
-      <h1><a href="/users/{{ .user }}">{{ .user }}</a>/{{ .app }} URL list</h1>
+      <h1><a href="/users/{{ .user }}">{{ .user }}</a>/{{ .app }}</h1>
       {{ if .error }}
       <div class="alert alert-danger" role="alert">
         {{ .message }}
       </div>
+      {{ end }}
+      <h2>URL list</h2>
+      {{ if .error }}
       {{ else }}
       <div class="list-group">
         <a class="list-group-item" href="{{ $.latestURL }}" target="_blank">{{ .latestURL }}</a>
         {{ range .urls }}<a class="list-group-item" href="{{ . }}" target="_blank">{{ . }}</a>{{ else }}Not found URL{{ end }}
       </div>
+      {{ end }}
+
+      <h2>Environment variables</h2>
+      {{ if .error }}
+      {{ else }}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range $key, $value := .envs }}
+          <tr>
+            <td>{{ $key }}</td>
+            <td> {{ $value }}</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
       {{ end }}
     </div>
 
