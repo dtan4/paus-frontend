@@ -13,6 +13,23 @@ import (
 	"golang.org/x/net/context"
 )
 
+func apps(keysAPI client.KeysAPI, username string) ([]string, error) {
+	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/", &client.GetOptions{Sort: true})
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]string, 0)
+
+	for _, node := range resp.Node.Nodes {
+		appName := strings.Replace(node.Key, "/paus/users/"+username+"/", "", 1)
+		result = append(result, appName)
+	}
+
+	return result, nil
+}
+
 func appURL(uriScheme, identifier, baseDomain string) string {
 	return uriScheme + "://" + identifier + "." + baseDomain
 }
@@ -91,7 +108,7 @@ func main() {
 
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, "")
+		apps, err := apps(keysAPI, username)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
@@ -99,11 +116,21 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
-			c.HTML(http.StatusOK, "user.tmpl", gin.H{
-				"error": false,
-				"user":  username,
-				"urls":  urls,
-			})
+			urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, "")
+
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
+					"error":   true,
+					"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				})
+			} else {
+				c.HTML(http.StatusOK, "user.tmpl", gin.H{
+					"error": false,
+					"user":  username,
+					"apps":  apps,
+					"urls":  urls,
+				})
+			}
 		}
 	})
 
