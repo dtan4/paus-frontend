@@ -15,8 +15,8 @@
       {{ else }}
       <div class="list-group">
         {{ range .apps }}<a class="list-group-item" href="/users/{{ $.user }}/{{ . }}">{{ . }}</a>{{ else }}No application found{{ end }}
-      {{ end }}
       </div>
+      {{ end }}
     </div>
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>

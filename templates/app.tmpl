@@ -16,8 +16,8 @@
       <div class="list-group">
         <a class="list-group-item" href="{{ $.latestURL }}" target="_blank">{{ .latestURL }}</a>
         {{ range .urls }}<a class="list-group-item" href="{{ . }}" target="_blank">{{ . }}</a>{{ else }}Not found URL{{ end }}
-      {{ end }}
       </div>
+      {{ end }}
     </div>
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
