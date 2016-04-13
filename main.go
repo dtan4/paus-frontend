@@ -35,29 +35,6 @@ func appURL(uriScheme, identifier, baseDomain string) string {
 }
 
 func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/vulcand/frontends/", &client.GetOptions{Sort: true})
-
-	if err != nil {
-		return nil, err
-	}
-
-	urls := make([]string, 0)
-
-	for _, node := range resp.Node.Nodes {
-		identifier := strings.Replace(node.Key, "/vulcand/frontends/", "", 1)
-
-		if username == "" || strings.Index(identifier, username) == 0 {
-			if appName == "" || strings.Index(strings.Replace(identifier, username+"-", "", 1), appName) == 0 {
-				urls = append(urls, appURL(uriScheme, identifier, baseDomain))
-			}
-		}
-	}
-
-	return urls, nil
-}
-
-// TODO: integrate with appURLs
-func appURLsOfUser(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
 	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/revisions/", &client.GetOptions{Sort: true})
 
 	if err != nil {
@@ -139,28 +116,18 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
-			urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, "")
-
-			if err != nil {
-				c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
-					"error":   true,
-					"message": strings.Join([]string{"error: ", err.Error()}, ""),
-				})
-			} else {
-				c.HTML(http.StatusOK, "user.tmpl", gin.H{
-					"error": false,
-					"user":  username,
-					"apps":  apps,
-					"urls":  urls,
-				})
-			}
+			c.HTML(http.StatusOK, "user.tmpl", gin.H{
+				"error": false,
+				"user":  username,
+				"apps":  apps,
+			})
 		}
 	})
 
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
-		urls, err := appURLsOfUser(keysAPI, uriScheme, baseDomain, username, appName)
+		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, appName)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
