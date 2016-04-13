@@ -52,8 +52,9 @@ func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName st
 	return result, nil
 }
 
-func latestAppURL(uriScheme, baseDomain, username, appName string) string {
-	return uriScheme + "://" + username + "-" + appName + "." + baseDomain
+func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
+	identifier := username + "-" + appName
+	return appURL(uriScheme, identifier, baseDomain)
 }
 
 func main() {
@@ -119,7 +120,7 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
-			latestURL := latestAppURL(uriScheme, baseDomain, username, appName)
+			latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
 
 			c.HTML(http.StatusOK, "app.tmpl", gin.H{
 				"error":     false,
