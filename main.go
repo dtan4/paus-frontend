@@ -75,6 +75,12 @@ func environmentVariables(keysAPI client.KeysAPI, username, appName string) (*ma
 	return &result, nil
 }
 
+func addEnvironmentVariable(keysAPI client.KeysAPI, username, appName, key, value string) error {
+	_, err := keysAPI.Set(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/"+key, value, nil)
+
+	return err
+}
+
 func main() {
 	baseDomain := os.Getenv("BASE_DOMAIN")
 	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
@@ -156,6 +162,25 @@ func main() {
 					"envs":      envs,
 				})
 			}
+		}
+	})
+
+	r.POST("/users/:username/:appName/envs", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+		key := c.PostForm("key")
+		value := c.PostForm("value")
+
+		err := addEnvironmentVariable(keysAPI, username, appName, key, value)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+		} else {
+			c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 		}
 	})
 

@@ -25,6 +25,17 @@
       <h2>Environment variables</h2>
       {{ if .error }}
       {{ else }}
+      <form class="form-inline" method="POST" action="/users/{{ .user }}/{{ .app }}/envs">
+        <div class="form-group">
+          <label for="envKeyInput">Key</label>
+          <input type="text" class="form-control" id="envKeyInput" name="key" placeholder="key">
+        </div>
+        <div class="form-group">
+          <label for="envValueInput">Value</label>
+          <input type="text" class="form-control" id="envValueInput" name="value" placeholder="value">
+        </div>
+        <button type="submit" class="btn btn-primary">Add new variable</button>
+      </form>
       <table class="table">
         <thead>
           <tr>
