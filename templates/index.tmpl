@@ -11,7 +11,7 @@
     <div class="container">
       <h1>Paus</h1>
 
-      <h3>1. Upload your name and SSH public key</h3>
+      <h3>1. Upload username and SSH public key</h3>
 
       {{ if .alert }}
       <div class="alert {{ if .error }}alert-danger{{ else }}alert-success{{ end }}" role="alert">
@@ -23,15 +23,19 @@
         <div class="form-group">
           <label class="control-label col-sm-2" for="usernameInput">Username</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" id="usernameInput" name="username" placeholder="Username">
+            <input type="text" class="form-control" id="usernameInput" name="username" placeholder="username">
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-2" for="pubkeyInput">SSH public key</label>
+          <label class="control-label col-sm-2" for="pubkeyInput">
+            SSH public key
+            <p class="help-block" style="font-size: 9px;">cat ~/.ssh/id_rsa.pub | pbcopy</p>
+          </label>
           <div class="col-sm-10">
             <textarea class="form-control" rows="3" id="pubkeyInput" name="pubKey" placeholder="SSH public key"></textarea>
           </div>
         </div>
+
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
             <button type="submit" class="btn btn-primary">Submit</button>
@@ -51,13 +55,30 @@ Host paus
       <h3>3. Add remote repository</h3>
 
       <pre>
-$ git remote add paus git@paus:yourname/repository</pre>
+$ git remote add paus git@paus:username/repository</pre>
 
-      <h3>4. <code>git push</code> and deploy!</h3>
+      <h3>4. Deploy</h3>
 
       <pre>
 $ git push paus master</pre>
+
+      <pre>
+=====> Building...
+remote: web uses an image, skipping
+=====> Pulling...
+remote: Pulling web (localhost:5000/username/repository:latest)...
+=====> Deploying...
+remote: Creating usernamerepository3432b23_web_1
+=====> repository was deployed at http://username-repository-3432b23&lt;hostname_or_ip_of_paus&gt.com/
+=====> repository was deployed at http://username.&lt;hostname_or_ip_of_paus&gt.com/
+To git@username-repository-3432b23&lt;hostname_or_ip_of_paus&gt.com:sample_rails
+2ff821c..3432b23  master -> master</pre>
+
+      <h3>5. Open browser!</h3>
+
+      <pre>$ open http://username.&lt;hostname_or_ip_of_paus&gt/</pre>
     </div>
+       </div>
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
