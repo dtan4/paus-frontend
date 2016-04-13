@@ -7,14 +7,14 @@
   </head>
   <body>
     <div class="container">
-      <h1>{{ .user }} URL list</h1>
+      <h1>{{ .user }} Application list</h1>
       {{ if .error }}
       <div class="alert alert-danger" role="alert">
         {{ .message }}
       </div>
       {{ else }}
       <div class="list-group">
-        {{ range .urls }}<a class="list-group-item" href="{{ . }}" target="_blank">{{ . }}</a>{{ else }}Not found URL{{ end }}
+        {{ range .apps }}<a class="list-group-item" href="/users/{{ $.user }}/{{ . }}">{{ . }}</a>{{ else }}No application found{{ end }}
       {{ end }}
       </div>
     </div>

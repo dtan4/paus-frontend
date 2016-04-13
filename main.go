@@ -13,28 +13,48 @@ import (
 	"golang.org/x/net/context"
 )
 
-func appURL(uriScheme, identifier, baseDomain string) string {
-	return uriScheme + "://" + identifier + "." + baseDomain
-}
-
-func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/vulcand/frontends/", &client.GetOptions{Sort: true})
+func apps(keysAPI client.KeysAPI, username string) ([]string, error) {
+	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/", &client.GetOptions{Sort: true})
 
 	if err != nil {
 		return nil, err
 	}
 
-	urls := make([]string, 0)
+	result := make([]string, 0)
 
 	for _, node := range resp.Node.Nodes {
-		identifier := strings.Replace(node.Key, "/vulcand/frontends/", "", 1)
-
-		if username == "" || strings.Index(identifier, username) == 0 {
-			urls = append(urls, appURL(uriScheme, identifier, baseDomain))
-		}
+		appName := strings.Replace(node.Key, "/paus/users/"+username+"/", "", 1)
+		result = append(result, appName)
 	}
 
-	return urls, nil
+	return result, nil
+}
+
+func appURL(uriScheme, identifier, baseDomain string) string {
+	return uriScheme + "://" + identifier + "." + baseDomain
+}
+
+func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
+	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/revisions/", &client.GetOptions{Sort: true})
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]string, 0)
+
+	for _, node := range resp.Node.Nodes {
+		revision := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/revisions/", "", 1)
+		identifier := username + "-" + appName + "-" + revision
+		result = append(result, appURL(uriScheme, identifier, baseDomain))
+	}
+
+	return result, nil
+}
+
+func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
+	identifier := username + "-" + appName
+	return appURL(uriScheme, identifier, baseDomain)
 }
 
 func main() {
@@ -71,25 +91,9 @@ func main() {
 		})
 	})
 
-	r.GET("/urls", func(c *gin.Context) {
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, "")
-
-		if err != nil {
-			c.HTML(http.StatusInternalServerError, "urls.tmpl", gin.H{
-				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
-			})
-		} else {
-			c.HTML(http.StatusOK, "urls.tmpl", gin.H{
-				"error": false,
-				"urls":  urls,
-			})
-		}
-	})
-
-	r.GET("/urls/:name", func(c *gin.Context) {
-		username := c.Param("name")
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username)
+	r.GET("/users/:username", func(c *gin.Context) {
+		username := c.Param("username")
+		apps, err := apps(keysAPI, username)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
@@ -100,7 +104,30 @@ func main() {
 			c.HTML(http.StatusOK, "user.tmpl", gin.H{
 				"error": false,
 				"user":  username,
-				"urls":  urls,
+				"apps":  apps,
+			})
+		}
+	})
+
+	r.GET("/users/:username/:appName", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, appName)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+		} else {
+			latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
+
+			c.HTML(http.StatusOK, "app.tmpl", gin.H{
+				"error":     false,
+				"user":      username,
+				"app":       appName,
+				"latestURL": latestURL,
+				"urls":      urls,
 			})
 		}
 	})
