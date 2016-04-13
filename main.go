@@ -87,8 +87,8 @@ func main() {
 		}
 	})
 
-	r.GET("/urls/:name", func(c *gin.Context) {
-		username := c.Param("name")
+	r.GET("/users/:username", func(c *gin.Context) {
+		username := c.Param("username")
 		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username)
 
 		if err != nil {
