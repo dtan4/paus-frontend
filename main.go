@@ -109,9 +109,10 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"alert":   false,
-			"error":   false,
-			"message": "",
+			"alert":      false,
+			"error":      false,
+			"message":    "",
+			"baseDomain": baseDomain,
 		})
 	})
 
