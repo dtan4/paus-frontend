@@ -17,7 +17,7 @@ func appURL(uriScheme, identifier, baseDomain string) string {
 	return uriScheme + "://" + identifier + "." + baseDomain
 }
 
-func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username string) ([]string, error) {
+func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
 	resp, err := keysAPI.Get(context.Background(), "/vulcand/frontends/", &client.GetOptions{Sort: true})
 
 	if err != nil {
@@ -30,7 +30,9 @@ func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username string) ([]
 		identifier := strings.Replace(node.Key, "/vulcand/frontends/", "", 1)
 
 		if username == "" || strings.Index(identifier, username) == 0 {
-			urls = append(urls, appURL(uriScheme, identifier, baseDomain))
+			if appName == "" || strings.Index(strings.Replace(identifier, username+"-", "", 1), appName) == 0 {
+				urls = append(urls, appURL(uriScheme, identifier, baseDomain))
+			}
 		}
 	}
 
@@ -72,7 +74,7 @@ func main() {
 	})
 
 	r.GET("/urls", func(c *gin.Context) {
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, "")
+		urls, err := appURLs(keysAPI, uriScheme, baseDomain, "", "")
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "urls.tmpl", gin.H{
@@ -89,7 +91,7 @@ func main() {
 
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username)
+		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, "")
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
@@ -100,6 +102,26 @@ func main() {
 			c.HTML(http.StatusOK, "user.tmpl", gin.H{
 				"error": false,
 				"user":  username,
+				"urls":  urls,
+			})
+		}
+	})
+
+	r.GET("/users/:username/:appName", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, appName)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+		} else {
+			c.HTML(http.StatusOK, "app.tmpl", gin.H{
+				"error": false,
+				"user":  username,
+				"app":   appName,
 				"urls":  urls,
 			})
 		}
