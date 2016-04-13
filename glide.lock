@@ -1,37 +1,31 @@
-hash: 1f749685c1bba77816b0604a8aed128fa7dd9e518605e55990ec6fac89f057f2
-updated: 2016-02-17T17:18:10.562868492+09:00
+hash: 2b663dad2599ebcbcb735d0aa64cbbc0e06745e05c818353c0d2ffec95f13fb0
+updated: 2016-04-13T10:13:17.339245121+09:00
 imports:
-- name: github.com/davecgh/go-spew
-  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+- name: github.com/coreos/etcd
+  version: 29853967681e161e756a6221b681743dc053604c
   subpackages:
-  - spew
+  - client
+  - pkg/pathutil
+  - pkg/types
 - name: github.com/gin-gonic/gin
   version: 27f912f5b2c8ee7dd7655d479dee2fc4d41d32d7
+  subpackages:
+  - binding
+  - render
 - name: github.com/golang/protobuf
   version: 2402d76f3d41f928c7902a765dfc872356dd3aad
   subpackages:
   - proto
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
-- name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
+- name: github.com/ugorji/go
+  version: a396ed22fc049df733440d90efe17475e3929ccb
   subpackages:
-  - difflib
-- name: github.com/stretchr/objx
-  version: cbeaeb16a013161a98496fad62933b1d21786672
-- name: github.com/stretchr/testify
-  version: f390dcf405f7b83c997eac1b06768bb9f44dec18
-  subpackages:
-  - assert
-- name: golang.org/x/crypto
-  version: 1f22c0103821b9390939b6776727195525381532
+  - codec
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
   - context
-- name: golang.org/x/text
-  version: 07b9a78963006a15c538ec5175243979025fa7a8
-  repo: https://golang.org/x/text
 - name: gopkg.in/go-playground/validator.v8
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
 devImports: []
