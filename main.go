@@ -90,22 +90,6 @@ func main() {
 		})
 	})
 
-	r.GET("/urls", func(c *gin.Context) {
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, "", "")
-
-		if err != nil {
-			c.HTML(http.StatusInternalServerError, "urls.tmpl", gin.H{
-				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
-			})
-		} else {
-			c.HTML(http.StatusOK, "urls.tmpl", gin.H{
-				"error": false,
-				"urls":  urls,
-			})
-		}
-	})
-
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
 		apps, err := apps(keysAPI, username)
