@@ -14,6 +14,7 @@
       </div>
       {{ else }}
       <div class="list-group">
+        <a class="list-group-item" href="{{ $.latestURL }}" target="_blank">{{ .latestURL }}</a>
         {{ range .urls }}<a class="list-group-item" href="{{ . }}" target="_blank">{{ . }}</a>{{ else }}Not found URL{{ end }}
       {{ end }}
       </div>

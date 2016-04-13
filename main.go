@@ -75,6 +75,10 @@ func appURLsOfUser(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appN
 	return result, nil
 }
 
+func latestAppURL(uriScheme, baseDomain, username, appName string) string {
+	return uriScheme + "://" + username + "-" + appName + "." + baseDomain
+}
+
 func main() {
 	baseDomain := os.Getenv("BASE_DOMAIN")
 	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
@@ -164,11 +168,14 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
+			latestURL := latestAppURL(uriScheme, baseDomain, username, appName)
+
 			c.HTML(http.StatusOK, "app.tmpl", gin.H{
-				"error": false,
-				"user":  username,
-				"app":   appName,
-				"urls":  urls,
+				"error":     false,
+				"user":      username,
+				"app":       appName,
+				"latestURL": latestURL,
+				"urls":      urls,
 			})
 		}
 	})
