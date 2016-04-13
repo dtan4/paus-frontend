@@ -56,6 +56,25 @@ func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName st
 	return urls, nil
 }
 
+// TODO: integrate with appURLs
+func appURLsOfUser(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
+	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/revisions/", &client.GetOptions{Sort: true})
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]string, 0)
+
+	for _, node := range resp.Node.Nodes {
+		revision := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/revisions/", "", 1)
+		identifier := username + "-" + appName + "-" + revision
+		result = append(result, appURL(uriScheme, identifier, baseDomain))
+	}
+
+	return result, nil
+}
+
 func main() {
 	baseDomain := os.Getenv("BASE_DOMAIN")
 	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
@@ -137,7 +156,7 @@ func main() {
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, appName)
+		urls, err := appURLsOfUser(keysAPI, uriScheme, baseDomain, username, appName)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
