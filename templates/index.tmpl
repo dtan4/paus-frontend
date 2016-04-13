@@ -47,7 +47,7 @@
 
       <pre>
 Host paus
-  HostName &lt;hostname_or_ip_of_paus&gt;
+  HostName {{ .baseDomain }}
   User git
   Port 2222
   IdentityFile ~/.ssh/id_rsa</pre>
@@ -69,14 +69,14 @@ remote: web uses an image, skipping
 remote: Pulling web (localhost:5000/username/repository:latest)...
 =====> Deploying...
 remote: Creating usernamerepository3432b23_web_1
-=====> repository was deployed at http://username-repository-3432b23&lt;hostname_or_ip_of_paus&gt.com/
-=====> repository was deployed at http://username.&lt;hostname_or_ip_of_paus&gt.com/
-To git@username-repository-3432b23&lt;hostname_or_ip_of_paus&gt.com:sample_rails
+=====> repository was deployed at http://username-repository-3432b23.{{ .baseDomain }}/
+=====> repository was deployed at http://username.{{ .baseDomain }}/
+To git@{{ .baseDomain }}:username/repository
 2ff821c..3432b23  master -> master</pre>
 
       <h3>5. Open browser!</h3>
 
-      <pre>$ open http://username.&lt;hostname_or_ip_of_paus&gt/</pre>
+      <pre>$ open http://username.{{ .baseDomain }}/</pre>
     </div>
        </div>
 
