@@ -29,7 +29,7 @@ func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username string) ([]
 	for _, node := range resp.Node.Nodes {
 		identifier := strings.Replace(node.Key, "/vulcand/frontends/", "", 1)
 
-		if username != "" && strings.Index(identifier, username) == 0 {
+		if username == "" || strings.Index(identifier, username) == 0 {
 			urls = append(urls, appURL(uriScheme, identifier, baseDomain))
 		}
 	}
