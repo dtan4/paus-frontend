@@ -76,6 +76,7 @@ func main() {
 
 			return
 		}
+
 		envs, err := EnvironmentVariables(etcd, username, appName)
 
 		if err != nil {
