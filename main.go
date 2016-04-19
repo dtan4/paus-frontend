@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -81,6 +82,29 @@ func addEnvironmentVariable(keysAPI client.KeysAPI, username, appName, key, valu
 	_, err := keysAPI.Set(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/"+key, value, nil)
 
 	return err
+}
+
+func loadDotenv(keysAPI client.KeysAPI, username, appName string, dotenvFile io.Reader) error {
+	scanner := bufio.NewScanner(dotenvFile)
+
+	for scanner.Scan() {
+		envKeyValue := strings.Split(scanner.Text(), "=")
+		key, value := envKeyValue[0], strings.Join(envKeyValue[1:], "=")
+
+		fmt.Printf("%s = %s\n", key, value)
+
+		if key == "" {
+			continue
+		}
+
+		err := addEnvironmentVariable(keysAPI, username, appName, key, value)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func main() {
@@ -191,7 +215,7 @@ func main() {
 		appName := c.Param("appName")
 		username := c.Param("username")
 
-		file, _, err := c.Request.FormFile("dotenv")
+		dotenvFile, _, err := c.Request.FormFile("dotenv")
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
@@ -203,29 +227,14 @@ func main() {
 			return
 		}
 
-		scanner := bufio.NewScanner(file)
+		if err = loadDotenv(keysAPI, appName, username, dotenvFile); err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
 
-		for scanner.Scan() {
-			envKeyValue := strings.Split(scanner.Text(), "=")
-			key, value := envKeyValue[0], strings.Join(envKeyValue[1:], "=")
-
-			fmt.Printf("%s = %s\n", key, value)
-
-			if key == "" {
-				continue
-			}
-
-			err := addEnvironmentVariable(keysAPI, username, appName, key, value)
-
-			if err != nil {
-				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-					"alert":   true,
-					"error":   true,
-					"message": strings.Join([]string{"error: ", err.Error()}, ""),
-				})
-
-				return
-			}
+			return
 		}
 
 		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
