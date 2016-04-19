@@ -7,16 +7,16 @@ Web frontend of [Paus](https://github.com/dtan4/paus)
 ## Usage
 
 ``` bash
-$ BASE_DOMAIN=pausapp.com ETCD_ENDPOINT=http://127.0.0.1:2379 paus-frontend
+$ PAUS_BASE_DOMAIN=pausapp.com PAUS_ETCD_ENDPOINT=http://127.0.0.1:2379 paus-frontend
 ```
 
 ## Environment variables
 
-| Key             | Required | Description                                | Default | Example                 |
-|-----------------|----------|--------------------------------------------|---------|-------------------------|
-| `BASE_DOMAIN`   | Required | Base domain for application URL            |         | `pausapp.com`           |
-| `ETCD_ENDPOINT` | Required | Endpoint of etcd cluster                   |         | `http://127.0.0.1:2379` |
-| `URI_SCHEME`    |          | URI scheme of application URL (http/https) | http    | `http`                  |
+| Key                  | Required | Description                                    | Default                 | Example                 |
+|----------------------|----------|------------------------------------------------|-------------------------|-------------------------|
+| `PAUS_BASE_DOMAIN`   | Required | Base domain for application URL                |                         | `pausapp.com`           |
+| `PAUS_ETCD_ENDPOINT` |          | Endpoint of etcd cluster                       | `http://127.0.0.1:2379` | `http://127.0.0.1:2379` |
+| `PAUS_URI_SCHEME`    |          | URI scheme of application URL (`http`|`https`) | http                    | `http`                  |
 
 ## Development
 
