@@ -18,7 +18,7 @@ $ PAUS_BASE_DOMAIN=pausapp.com PAUS_ETCD_ENDPOINT=http://127.0.0.1:2379 paus-fro
 |----------------------|----------|------------------------------------------------|-------------------------|-------------------------|
 | `PAUS_BASE_DOMAIN`   | Required | Base domain for application URL                |                         | `pausapp.com`           |
 | `PAUS_ETCD_ENDPOINT` |          | Endpoint of etcd cluster                       | `http://127.0.0.1:2379` | `http://127.0.0.1:2379` |
-| `PAUS_URI_SCHEME`    |          | URI scheme of application URL (`http`|`https`) | http                    | `http`                  |
+| `PAUS_URI_SCHEME`    |          | URI scheme of application URL (`http`&#124;`https`) | http                    | `http`                  |
 
 ## Development
 
