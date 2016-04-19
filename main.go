@@ -10,51 +10,12 @@ import (
 
 	"github.com/coreos/etcd/client"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/net/context"
 )
-
-func apps(keysAPI client.KeysAPI, username string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/", &client.GetOptions{Sort: true})
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]string, 0)
-
-	for _, node := range resp.Node.Nodes {
-		appName := strings.Replace(node.Key, "/paus/users/"+username+"/", "", 1)
-		result = append(result, appName)
-	}
-
-	return result, nil
-}
-
-func appURL(uriScheme, identifier, baseDomain string) string {
-	return uriScheme + "://" + identifier + "." + baseDomain
-}
-
-func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/revisions/", &client.GetOptions{Sort: true})
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]string, 0)
-
-	for _, node := range resp.Node.Nodes {
-		revision := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/revisions/", "", 1)
-		identifier := username + "-" + appName + "-" + revision
-		result = append(result, appURL(uriScheme, identifier, baseDomain))
-	}
-
-	return result, nil
-}
 
 func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
 	identifier := username + "-" + appName
-	return appURL(uriScheme, identifier, baseDomain)
+
+	return AppURL(uriScheme, identifier, baseDomain)
 }
 
 func main() {
@@ -94,7 +55,7 @@ func main() {
 
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
-		apps, err := apps(keysAPI, username)
+		apps, err := Apps(keysAPI, username)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
@@ -113,7 +74,7 @@ func main() {
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, appName)
+		urls, err := AppURLs(keysAPI, uriScheme, baseDomain, username, appName)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
