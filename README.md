@@ -20,6 +20,9 @@ $ PAUS_BASE_DOMAIN=pausapp.com PAUS_ETCD_ENDPOINT=http://127.0.0.1:2379 paus-fro
 
 ## Development
 
+Go 1.5 or higher is required.
+`GO15VENDOREXPERIMENT=1` must be set with Go 1.5.
+
 ``` bash
 $ make deps
 $ make build
