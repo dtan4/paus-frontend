@@ -10,7 +10,7 @@ func TestAppURL(t *testing.T) {
 	baseDomain := "pausapp.com"
 
 	expected := "http://dtan4-hoge.pausapp.com"
-	actual := appURL(uriScheme, identifier, baseDomain)
+	actual := AppURL(uriScheme, identifier, baseDomain)
 
 	if expected != actual {
 		t.Fatalf("Expected: %s, Actual: %s", expected, actual)
@@ -24,7 +24,7 @@ func TestLatestAppURLOfUser(t *testing.T) {
 	appName := "hoge"
 
 	expected := "http://dtan4-hoge.pausapp.com"
-	actual := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
+	actual := LatestAppURLOfUser(uriScheme, baseDomain, username, appName)
 
 	if expected != actual {
 		t.Fatalf("Expected: %s, Actual: %s", expected, actual)
