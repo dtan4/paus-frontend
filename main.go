@@ -10,13 +10,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	DefaultEtcdEndpoint = "http://localhost:2379"
+	DefaultURIScheme    = "http"
+)
+
 func main() {
-	baseDomain := os.Getenv("BASE_DOMAIN")
+	baseDomain := os.Getenv("PAUS_BASE_DOMAIN")
+
+	if baseDomain == "" {
+		log.Fatal("PAUS_BASE_DOMAIN is not set")
+	}
+
 	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
+
+	if etcdEndpoint == "" {
+		etcdEndpoint = DefaultEtcdEndpoint
+	}
+
 	uriScheme := os.Getenv("URI_SCHEME")
 
 	if uriScheme == "" {
-		uriScheme = "http"
+		uriScheme = DefaultURIScheme
 	}
 
 	etcd, err := NewEtcd(etcdEndpoint)
