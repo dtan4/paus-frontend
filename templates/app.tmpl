@@ -36,6 +36,12 @@
         </div>
         <button type="submit" class="btn btn-primary">Add new variable</button>
       </form>
+      <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/{{ .app }}/envs/upload">
+        <div class="form-group">
+          <input type="file" id="dotenvInput" name="dotenv">
+        </div>
+        <button type="submit" class="btn btn-primary">Upload .env</button>
+      </form>
       <table class="table">
         <thead>
           <tr>

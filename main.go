@@ -57,30 +57,6 @@ func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string 
 	return appURL(uriScheme, identifier, baseDomain)
 }
 
-func environmentVariables(keysAPI client.KeysAPI, username, appName string) (*map[string]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/", &client.GetOptions{Sort: true})
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := map[string]string{}
-
-	for _, node := range resp.Node.Nodes {
-		key := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/envs/", "", 1)
-		value := node.Value
-		result[key] = value
-	}
-
-	return &result, nil
-}
-
-func addEnvironmentVariable(keysAPI client.KeysAPI, username, appName, key, value string) error {
-	_, err := keysAPI.Set(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/"+key, value, nil)
-
-	return err
-}
-
 func main() {
 	baseDomain := os.Getenv("BASE_DOMAIN")
 	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
@@ -145,7 +121,7 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
-			envs, err := environmentVariables(keysAPI, username, appName)
+			envs, err := EnvironmentVariables(keysAPI, username, appName)
 			if err != nil {
 				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 					"error":   true,
@@ -172,7 +148,7 @@ func main() {
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
-		err := addEnvironmentVariable(keysAPI, username, appName, key, value)
+		err := AddEnvironmentVariable(keysAPI, username, appName, key, value)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
@@ -183,6 +159,35 @@ func main() {
 		} else {
 			c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 		}
+	})
+
+	r.POST("/users/:username/:appName/envs/upload", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+
+		dotenvFile, _, err := c.Request.FormFile("dotenv")
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		if err = LoadDotenv(keysAPI, username, appName, dotenvFile); err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 	})
 
 	r.POST("/submit", func(c *gin.Context) {
