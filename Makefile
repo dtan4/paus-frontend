@@ -6,6 +6,10 @@ build: clean
 build-linux: clean
 	GOOS=linux GOARCH=amd64 go build -o bin/paus-frontend-linux_amd64
 
+ci-docker-release: docker-build-release
+	docker login -e="$DOCKER_QUAY_EMAIL" -u="$DOCKER_QUAY_USERNAME" -p="$DOCKER_QUAY_PASSWORD" quay.io
+	docker push quay.io/dtan4/paus-frontend:latest
+
 clean:
 	rm -f bin/paus-frontend
 	rm -f bin/paus-frontend-linux_amd64
