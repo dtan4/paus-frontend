@@ -3,38 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	DefaultEtcdEndpoint = "http://localhost:2379"
-	DefaultURIScheme    = "http"
-)
-
 func main() {
-	baseDomain := os.Getenv("PAUS_BASE_DOMAIN")
+	config, err := LoadConfig()
 
-	if baseDomain == "" {
-		log.Fatal("PAUS_BASE_DOMAIN is not set")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
-
-	if etcdEndpoint == "" {
-		etcdEndpoint = DefaultEtcdEndpoint
-	}
-
-	uriScheme := os.Getenv("URI_SCHEME")
-
-	if uriScheme == "" {
-		uriScheme = DefaultURIScheme
-	}
-
-	etcd, err := NewEtcd(etcdEndpoint)
+	etcd, err := NewEtcd(config.EtcdEndpoint)
 
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +30,7 @@ func main() {
 			"alert":      false,
 			"error":      false,
 			"message":    "",
-			"baseDomain": baseDomain,
+			"baseDomain": config.BaseDomain,
 		})
 	})
 
@@ -75,7 +57,7 @@ func main() {
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
-		urls, err := AppURLs(etcd, uriScheme, baseDomain, username, appName)
+		urls, err := AppURLs(etcd, config.URIScheme, config.BaseDomain, username, appName)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
@@ -97,7 +79,7 @@ func main() {
 			return
 		}
 
-		latestURL := LatestAppURLOfUser(uriScheme, baseDomain, username, appName)
+		latestURL := LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
 
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
 			"error":     false,

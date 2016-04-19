@@ -1,5 +1,5 @@
-hash: 2b663dad2599ebcbcb735d0aa64cbbc0e06745e05c818353c0d2ffec95f13fb0
-updated: 2016-04-13T10:13:17.339245121+09:00
+hash: 4cfc5c254007951ab21067120845fe7ac7c0bdb8ded21cd0e1b78268eab707e9
+updated: 2016-04-19T16:19:14.204234948+09:00
 imports:
 - name: github.com/coreos/etcd
   version: 29853967681e161e756a6221b681743dc053604c
@@ -16,6 +16,8 @@ imports:
   version: 2402d76f3d41f928c7902a765dfc872356dd3aad
   subpackages:
   - proto
+- name: github.com/kelseyhightower/envconfig
+  version: cea086319492c3940683ea5e122aa5de70a33923
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
 - name: github.com/ugorji/go
