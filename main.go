@@ -1,23 +1,16 @@
 package main
 
 import (
-	"bufio"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/coreos/etcd/client"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
-)
-
-const (
-	DotenvLineRegexp = `\A([\w\.]+)(?:\s*=\s*|:\s+?)([^#\n]+)?(?:\s*\#.*)?\z`
 )
 
 func apps(keysAPI client.KeysAPI, username string) ([]string, error) {
@@ -62,54 +55,6 @@ func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName st
 func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
 	identifier := username + "-" + appName
 	return appURL(uriScheme, identifier, baseDomain)
-}
-
-func environmentVariables(keysAPI client.KeysAPI, username, appName string) (*map[string]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/", &client.GetOptions{Sort: true})
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := map[string]string{}
-
-	for _, node := range resp.Node.Nodes {
-		key := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/envs/", "", 1)
-		value := node.Value
-		result[key] = value
-	}
-
-	return &result, nil
-}
-
-func addEnvironmentVariable(keysAPI client.KeysAPI, username, appName, key, value string) error {
-	_, err := keysAPI.Set(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/"+key, value, nil)
-
-	return err
-}
-
-func loadDotenv(keysAPI client.KeysAPI, username, appName string, dotenvFile io.Reader) error {
-	r := regexp.MustCompile(DotenvLineRegexp)
-
-	scanner := bufio.NewScanner(dotenvFile)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		matchResult := r.FindStringSubmatch(line)
-
-		if len(matchResult) == 0 {
-			continue
-		}
-
-		key, value := matchResult[1], matchResult[2]
-		err := addEnvironmentVariable(keysAPI, username, appName, key, value)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func main() {
@@ -176,7 +121,7 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
-			envs, err := environmentVariables(keysAPI, username, appName)
+			envs, err := EnvironmentVariables(keysAPI, username, appName)
 			if err != nil {
 				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 					"error":   true,
@@ -203,7 +148,7 @@ func main() {
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
-		err := addEnvironmentVariable(keysAPI, username, appName, key, value)
+		err := AddEnvironmentVariable(keysAPI, username, appName, key, value)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
@@ -232,7 +177,7 @@ func main() {
 			return
 		}
 
-		if err = loadDotenv(keysAPI, username, appName, dotenvFile); err != nil {
+		if err = LoadDotenv(keysAPI, username, appName, dotenvFile); err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
