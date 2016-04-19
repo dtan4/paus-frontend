@@ -1,4 +1,5 @@
 # paus-frontend
+[![Docker Repository on Quay](https://quay.io/repository/dtan4/paus-frontend/status "Docker Repository on Quay")](https://quay.io/repository/dtan4/paus-frontend)
 
 Web frontend of [Paus](https://github.com/dtan4/paus)
 
