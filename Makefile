@@ -20,4 +20,7 @@ docker-build: clean
 docker-build-release: build-linux
 	docker build -f Dockerfile.release -t quay.io/dtan4/paus-frontend:latest .
 
+test:
+	go test
+
 .PHONY: build clean docker-build
