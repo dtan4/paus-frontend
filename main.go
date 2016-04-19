@@ -6,55 +6,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
-	"github.com/coreos/etcd/client"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/net/context"
 )
-
-func apps(keysAPI client.KeysAPI, username string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/", &client.GetOptions{Sort: true})
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]string, 0)
-
-	for _, node := range resp.Node.Nodes {
-		appName := strings.Replace(node.Key, "/paus/users/"+username+"/", "", 1)
-		result = append(result, appName)
-	}
-
-	return result, nil
-}
-
-func appURL(uriScheme, identifier, baseDomain string) string {
-	return uriScheme + "://" + identifier + "." + baseDomain
-}
-
-func appURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/revisions/", &client.GetOptions{Sort: true})
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]string, 0)
-
-	for _, node := range resp.Node.Nodes {
-		revision := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/revisions/", "", 1)
-		identifier := username + "-" + appName + "-" + revision
-		result = append(result, appURL(uriScheme, identifier, baseDomain))
-	}
-
-	return result, nil
-}
 
 func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
 	identifier := username + "-" + appName
-	return appURL(uriScheme, identifier, baseDomain)
+
+	return AppURL(uriScheme, identifier, baseDomain)
 }
 
 func main() {
@@ -66,19 +25,11 @@ func main() {
 		uriScheme = "http"
 	}
 
-	config := client.Config{
-		Endpoints:               []string{etcdEndpoint},
-		Transport:               client.DefaultTransport,
-		HeaderTimeoutPerRequest: time.Second,
-	}
-
-	c, err := client.New(config)
+	etcd, err := NewEtcd(etcdEndpoint)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	keysAPI := client.NewKeysAPI(c)
 
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*")
@@ -94,52 +45,59 @@ func main() {
 
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
-		apps, err := apps(keysAPI, username)
+		apps, err := Apps(etcd, username)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			c.HTML(http.StatusOK, "user.tmpl", gin.H{
-				"error": false,
-				"user":  username,
-				"apps":  apps,
-			})
+
+			return
 		}
+
+		c.HTML(http.StatusOK, "user.tmpl", gin.H{
+			"error": false,
+			"user":  username,
+			"apps":  apps,
+		})
 	})
 
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
-		urls, err := appURLs(keysAPI, uriScheme, baseDomain, username, appName)
+		urls, err := AppURLs(etcd, uriScheme, baseDomain, username, appName)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			envs, err := EnvironmentVariables(keysAPI, username, appName)
-			if err != nil {
-				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-					"error":   true,
-					"message": strings.Join([]string{"error: ", err.Error()}, ""),
-				})
-			} else {
-				latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
 
-				c.HTML(http.StatusOK, "app.tmpl", gin.H{
-					"error":     false,
-					"user":      username,
-					"app":       appName,
-					"latestURL": latestURL,
-					"urls":      urls,
-					"envs":      envs,
-				})
-			}
+			return
 		}
+
+		envs, err := EnvironmentVariables(etcd, username, appName)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
+
+		c.HTML(http.StatusOK, "app.tmpl", gin.H{
+			"error":     false,
+			"user":      username,
+			"app":       appName,
+			"latestURL": latestURL,
+			"urls":      urls,
+			"envs":      envs,
+		})
 	})
 
 	r.POST("/users/:username/:appName/envs", func(c *gin.Context) {
@@ -148,7 +106,7 @@ func main() {
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
-		err := AddEnvironmentVariable(keysAPI, username, appName, key, value)
+		err := AddEnvironmentVariable(etcd, username, appName, key, value)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
@@ -156,9 +114,11 @@ func main() {
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
+
+			return
 		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 	})
 
 	r.POST("/users/:username/:appName/envs/upload", func(c *gin.Context) {
@@ -177,7 +137,7 @@ func main() {
 			return
 		}
 
-		if err = LoadDotenv(keysAPI, username, appName, dotenvFile); err != nil {
+		if err = LoadDotenv(etcd, username, appName, dotenvFile); err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
@@ -203,13 +163,15 @@ func main() {
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			c.HTML(http.StatusCreated, "index.tmpl", gin.H{
-				"alert":   true,
-				"error":   false,
-				"message": strings.Join([]string{"fingerprint: ", string(out)}, ""),
-			})
+
+			return
 		}
+
+		c.HTML(http.StatusCreated, "index.tmpl", gin.H{
+			"alert":   true,
+			"error":   false,
+			"message": strings.Join([]string{"fingerprint: ", string(out)}, ""),
+		})
 	})
 
 	r.Run()
