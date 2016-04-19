@@ -27,4 +27,4 @@ docker-build-release: build-linux
 test:
 	go test
 
-.PHONY: build clean docker-build
+.PHONY: build build-linux ci-docker-release clean deps docker-build docker-build-release test
