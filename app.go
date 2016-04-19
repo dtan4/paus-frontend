@@ -42,3 +42,9 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 
 	return result, nil
 }
+
+func LatestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
+	identifier := username + "-" + appName
+
+	return AppURL(uriScheme, identifier, baseDomain)
+}

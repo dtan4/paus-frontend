@@ -10,12 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func latestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
-	identifier := username + "-" + appName
-
-	return AppURL(uriScheme, identifier, baseDomain)
-}
-
 func main() {
 	baseDomain := os.Getenv("BASE_DOMAIN")
 	etcdEndpoint := os.Getenv("ETCD_ENDPOINT")
@@ -88,7 +82,7 @@ func main() {
 			return
 		}
 
-		latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
+		latestURL := LatestAppURLOfUser(uriScheme, baseDomain, username, appName)
 
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
 			"error":     false,
