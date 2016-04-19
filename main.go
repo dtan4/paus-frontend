@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -183,6 +185,50 @@ func main() {
 		} else {
 			c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 		}
+	})
+
+	r.POST("/users/:username/:appName/envs/upload", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+
+		file, _, err := c.Request.FormFile("dotenv")
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		scanner := bufio.NewScanner(file)
+
+		for scanner.Scan() {
+			envKeyValue := strings.Split(scanner.Text(), "=")
+			key, value := envKeyValue[0], strings.Join(envKeyValue[1:], "=")
+
+			fmt.Printf("%s = %s\n", key, value)
+
+			if key == "" {
+				continue
+			}
+
+			err := addEnvironmentVariable(keysAPI, username, appName, key, value)
+
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+					"alert":   true,
+					"error":   true,
+					"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				})
+
+				return
+			}
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 	})
 
 	r.POST("/submit", func(c *gin.Context) {
