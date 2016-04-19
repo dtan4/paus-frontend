@@ -2,18 +2,22 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/coreos/etcd/client"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
+)
+
+const (
+	DotenvLineRegexp = `\A([\w\.]+)(?:\s*=\s*|:\s+?)([^#\n]+)?(?:\s*\#.*)?\z`
 )
 
 func apps(keysAPI client.KeysAPI, username string) ([]string, error) {
@@ -85,18 +89,19 @@ func addEnvironmentVariable(keysAPI client.KeysAPI, username, appName, key, valu
 }
 
 func loadDotenv(keysAPI client.KeysAPI, username, appName string, dotenvFile io.Reader) error {
+	r := regexp.MustCompile(DotenvLineRegexp)
+
 	scanner := bufio.NewScanner(dotenvFile)
 
 	for scanner.Scan() {
-		envKeyValue := strings.Split(scanner.Text(), "=")
-		key, value := envKeyValue[0], strings.Join(envKeyValue[1:], "=")
+		line := scanner.Text()
+		matchResult := r.FindStringSubmatch(line)
 
-		fmt.Printf("%s = %s\n", key, value)
-
-		if key == "" {
+		if len(matchResult) == 0 {
 			continue
 		}
 
+		key, value := matchResult[1], matchResult[2]
 		err := addEnvironmentVariable(keysAPI, username, appName, key, value)
 
 		if err != nil {
@@ -227,7 +232,7 @@ func main() {
 			return
 		}
 
-		if err = loadDotenv(keysAPI, appName, username, dotenvFile); err != nil {
+		if err = loadDotenv(keysAPI, username, appName, dotenvFile); err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
