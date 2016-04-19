@@ -5,9 +5,6 @@ import (
 	"io"
 	"regexp"
 	"strings"
-
-	"github.com/coreos/etcd/client"
-	"golang.org/x/net/context"
 )
 
 const (
@@ -18,14 +15,14 @@ var (
 	DotenvLine = regexp.MustCompile(DotenvLineRegexp)
 )
 
-func AddEnvironmentVariable(keysAPI client.KeysAPI, username, appName, key, value string) error {
-	_, err := keysAPI.Set(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/"+key, value, nil)
+func AddEnvironmentVariable(etcd *Etcd, username, appName, key, value string) error {
+	err := etcd.Set("/paus/users/"+username+"/"+appName+"/envs/"+key, value)
 
 	return err
 }
 
-func EnvironmentVariables(keysAPI client.KeysAPI, username, appName string) (*map[string]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/envs/", &client.GetOptions{Sort: true})
+func EnvironmentVariables(etcd *Etcd, username, appName string) (*map[string]string, error) {
+	envs, err := etcd.ListWithValues("/paus/users/"+username+"/"+appName+"/envs/", true)
 
 	if err != nil {
 		return nil, err
@@ -33,16 +30,15 @@ func EnvironmentVariables(keysAPI client.KeysAPI, username, appName string) (*ma
 
 	result := map[string]string{}
 
-	for _, node := range resp.Node.Nodes {
-		key := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/envs/", "", 1)
-		value := node.Value
-		result[key] = value
+	for key, value := range *envs {
+		envKey := strings.Replace(key, "/paus/users/"+username+"/"+appName+"/envs/", "", 1)
+		result[envKey] = value
 	}
 
 	return &result, nil
 }
 
-func LoadDotenv(keysAPI client.KeysAPI, username, appName string, dotenvFile io.Reader) error {
+func LoadDotenv(etcd *Etcd, username, appName string, dotenvFile io.Reader) error {
 	scanner := bufio.NewScanner(dotenvFile)
 
 	for scanner.Scan() {
@@ -54,7 +50,7 @@ func LoadDotenv(keysAPI client.KeysAPI, username, appName string, dotenvFile io.
 		}
 
 		key, value := matchResult[1], matchResult[2]
-		err := AddEnvironmentVariable(keysAPI, username, appName, key, value)
+		err := AddEnvironmentVariable(etcd, username, appName, key, value)
 
 		if err != nil {
 			return err

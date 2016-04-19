@@ -6,9 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
-	"github.com/coreos/etcd/client"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,19 +25,11 @@ func main() {
 		uriScheme = "http"
 	}
 
-	config := client.Config{
-		Endpoints:               []string{etcdEndpoint},
-		Transport:               client.DefaultTransport,
-		HeaderTimeoutPerRequest: time.Second,
-	}
-
-	c, err := client.New(config)
+	etcd, err := NewEtcd(etcdEndpoint)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	keysAPI := client.NewKeysAPI(c)
 
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*")
@@ -55,7 +45,7 @@ func main() {
 
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
-		apps, err := Apps(keysAPI, username)
+		apps, err := Apps(etcd, username)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
@@ -74,7 +64,7 @@ func main() {
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
-		urls, err := AppURLs(keysAPI, uriScheme, baseDomain, username, appName)
+		urls, err := AppURLs(etcd, uriScheme, baseDomain, username, appName)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
@@ -82,7 +72,7 @@ func main() {
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
 		} else {
-			envs, err := EnvironmentVariables(keysAPI, username, appName)
+			envs, err := EnvironmentVariables(etcd, username, appName)
 			if err != nil {
 				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 					"error":   true,
@@ -109,7 +99,7 @@ func main() {
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
-		err := AddEnvironmentVariable(keysAPI, username, appName, key, value)
+		err := AddEnvironmentVariable(etcd, username, appName, key, value)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
@@ -138,7 +128,7 @@ func main() {
 			return
 		}
 
-		if err = LoadDotenv(keysAPI, username, appName, dotenvFile); err != nil {
+		if err = LoadDotenv(etcd, username, appName, dotenvFile); err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,

@@ -2,13 +2,10 @@ package main
 
 import (
 	"strings"
-
-	"github.com/coreos/etcd/client"
-	"golang.org/x/net/context"
 )
 
-func Apps(keysAPI client.KeysAPI, username string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/", &client.GetOptions{Sort: true})
+func Apps(etcd *Etcd, username string) ([]string, error) {
+	apps, err := etcd.List("/paus/users/"+username+"/", true)
 
 	if err != nil {
 		return nil, err
@@ -16,8 +13,8 @@ func Apps(keysAPI client.KeysAPI, username string) ([]string, error) {
 
 	result := make([]string, 0)
 
-	for _, node := range resp.Node.Nodes {
-		appName := strings.Replace(node.Key, "/paus/users/"+username+"/", "", 1)
+	for _, app := range apps {
+		appName := strings.Replace(app, "/paus/users/"+username+"/", "", 1)
 		result = append(result, appName)
 	}
 
@@ -28,8 +25,8 @@ func AppURL(uriScheme, identifier, baseDomain string) string {
 	return uriScheme + "://" + identifier + "." + baseDomain
 }
 
-func AppURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	resp, err := keysAPI.Get(context.Background(), "/paus/users/"+username+"/"+appName+"/revisions/", &client.GetOptions{Sort: true})
+func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
+	revisions, err := etcd.List("/paus/users/"+username+"/"+appName+"/revisions/", true)
 
 	if err != nil {
 		return nil, err
@@ -37,8 +34,8 @@ func AppURLs(keysAPI client.KeysAPI, uriScheme, baseDomain, username, appName st
 
 	result := make([]string, 0)
 
-	for _, node := range resp.Node.Nodes {
-		revision := strings.Replace(node.Key, "/paus/users/"+username+"/"+appName+"/revisions/", "", 1)
+	for _, revision := range revisions {
+		revision := strings.Replace(revision, "/paus/users/"+username+"/"+appName+"/revisions/", "", 1)
 		identifier := username + "-" + appName + "-" + revision
 		result = append(result, AppURL(uriScheme, identifier, baseDomain))
 	}
