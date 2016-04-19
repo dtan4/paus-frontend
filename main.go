@@ -16,6 +16,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if config.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	etcd, err := NewEtcd(config.EtcdEndpoint)
 
 	if err != nil {
