@@ -52,13 +52,15 @@ func main() {
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			c.HTML(http.StatusOK, "user.tmpl", gin.H{
-				"error": false,
-				"user":  username,
-				"apps":  apps,
-			})
+
+			return
 		}
+
+		c.HTML(http.StatusOK, "user.tmpl", gin.H{
+			"error": false,
+			"user":  username,
+			"apps":  apps,
+		})
 	})
 
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
@@ -71,26 +73,30 @@ func main() {
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			envs, err := EnvironmentVariables(etcd, username, appName)
-			if err != nil {
-				c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-					"error":   true,
-					"message": strings.Join([]string{"error: ", err.Error()}, ""),
-				})
-			} else {
-				latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
 
-				c.HTML(http.StatusOK, "app.tmpl", gin.H{
-					"error":     false,
-					"user":      username,
-					"app":       appName,
-					"latestURL": latestURL,
-					"urls":      urls,
-					"envs":      envs,
-				})
-			}
+			return
 		}
+		envs, err := EnvironmentVariables(etcd, username, appName)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		latestURL := latestAppURLOfUser(uriScheme, baseDomain, username, appName)
+
+		c.HTML(http.StatusOK, "app.tmpl", gin.H{
+			"error":     false,
+			"user":      username,
+			"app":       appName,
+			"latestURL": latestURL,
+			"urls":      urls,
+			"envs":      envs,
+		})
 	})
 
 	r.POST("/users/:username/:appName/envs", func(c *gin.Context) {
@@ -107,9 +113,11 @@ func main() {
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
+
+			return
 		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 	})
 
 	r.POST("/users/:username/:appName/envs/upload", func(c *gin.Context) {
@@ -154,13 +162,15 @@ func main() {
 				"error":   true,
 				"message": strings.Join([]string{"error: ", err.Error()}, ""),
 			})
-		} else {
-			c.HTML(http.StatusCreated, "index.tmpl", gin.H{
-				"alert":   true,
-				"error":   false,
-				"message": strings.Join([]string{"fingerprint: ", string(out)}, ""),
-			})
+
+			return
 		}
+
+		c.HTML(http.StatusCreated, "index.tmpl", gin.H{
+			"alert":   true,
+			"error":   false,
+			"message": strings.Join([]string{"fingerprint: ", string(out)}, ""),
+		})
 	})
 
 	r.Run()
