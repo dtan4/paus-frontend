@@ -83,6 +83,17 @@ func main() {
 			return
 		}
 
+		buildArgs, err := BuildArgs(etcd, username, appName)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
 		latestURL := LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
 
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
@@ -91,8 +102,30 @@ func main() {
 			"app":       appName,
 			"latestURL": latestURL,
 			"urls":      urls,
+			"buildArgs": buildArgs,
 			"envs":      envs,
 		})
+	})
+
+	r.POST("/users/:username/:appName/build-args", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+		key := c.PostForm("key")
+		value := c.PostForm("value")
+
+		err := AddBuildArg(etcd, username, appName, key, value)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
 	})
 
 	r.POST("/users/:username/:appName/envs", func(c *gin.Context) {
