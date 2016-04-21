@@ -107,6 +107,27 @@ func main() {
 		})
 	})
 
+	r.POST("/users/:username/:appName/build-args", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+		key := c.PostForm("key")
+		value := c.PostForm("value")
+
+		err := AddBuildArg(etcd, username, appName, key, value)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
+	})
+
 	r.POST("/users/:username/:appName/envs", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
