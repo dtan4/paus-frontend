@@ -22,6 +22,38 @@
       </div>
       {{ end }}
 
+      <h2>Build-time variables</h2>
+      {{ if .error }}
+      {{ else }}
+      <form class="form-inline" method="POST" action="/users/{{ .user }}/{{ .app }}/build-args">
+        <div class="form-group">
+          <label for="buildArgKeyInput">Key</label>
+          <input type="text" class="form-control" id="buildArgKeyInput" name="key" placeholder="key">
+        </div>
+        <div class="form-group">
+          <label for="buildArgValueInput">Value</label>
+          <input type="text" class="form-control" id="buildArgValueInput" name="value" placeholder="value">
+        </div>
+        <button type="submit" class="btn btn-primary">Add new variable</button>
+      </form>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range $key, $value := .buildArgs }}
+          <tr>
+            <td>{{ $key }}</td>
+            <td> {{ $value }}</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+      {{ end }}
+
       <h2>Environment variables</h2>
       {{ if .error }}
       {{ else }}

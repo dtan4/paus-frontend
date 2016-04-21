@@ -83,6 +83,17 @@ func main() {
 			return
 		}
 
+		buildArgs, err := BuildArgs(etcd, username, appName)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
 		latestURL := LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
 
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
@@ -91,6 +102,7 @@ func main() {
 			"app":       appName,
 			"latestURL": latestURL,
 			"urls":      urls,
+			"buildArgs": buildArgs,
 			"envs":      envs,
 		})
 	})
