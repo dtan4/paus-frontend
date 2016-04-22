@@ -100,6 +100,8 @@ func main() {
 	})
 
 	r.GET("/users/:username/apps/:appName", func(c *gin.Context) {
+		var latestURL string
+
 		username := c.Param("username")
 
 		if !etcd.HasKey("/paus/users/" + username) {
@@ -155,7 +157,9 @@ func main() {
 			return
 		}
 
-		latestURL := LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
+		if len(urls) > 0 {
+			latestURL = LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
+		}
 
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
 			"error":     false,
