@@ -13,86 +13,112 @@
         {{ .message }}
       </div>
       {{ end }}
-      <h2>URL list</h2>
-      {{ if .error }}
-      {{ else }}
-      {{ if ne .latestURL "" }} <!-- TODO: len(.urls) -->
-      <div class="list-group">
-        <a class="list-group-item" href="{{ $.latestURL }}" target="_blank">{{ .latestURL }}</a>
-        {{ range .urls }}<a class="list-group-item" href="{{ . }}" target="_blank">{{ . }}</a>{{ else }}Not found URL{{ end }}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">URL list</h3>
+        </div>
+        <div class="panel-body">
+          {{ if .error }}
+          {{ else }}
+          {{ if ne .latestURL "" }} <!-- TODO: len(.urls) -->
+          <div class="list-group">
+            <a class="list-group-item" href="{{ $.latestURL }}" target="_blank">{{ .latestURL }}</a>
+            {{ range .urls }}<a class="list-group-item" href="{{ . }}" target="_blank">{{ . }}</a>{{ else }}Not found URL{{ end }}
+          </div>
+          {{ end }}
+          {{ end }}
+        </div>
       </div>
-      {{ end }}
-      {{ end }}
-
-      <h2>Build-time variables</h2>
-      {{ if .error }}
-      {{ else }}
-      <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
-        <div class="form-group">
-          <label for="buildArgKeyInput">Key</label>
-          <input type="text" class="form-control" id="buildArgKeyInput" name="key" placeholder="key">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Build-time variables</h3>
         </div>
-        <div class="form-group">
-          <label for="buildArgValueInput">Value</label>
-          <input type="text" class="form-control" id="buildArgValueInput" name="value" placeholder="value">
-        </div>
-        <button type="submit" class="btn btn-primary">Add new variable</button>
-      </form>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{ range $key, $value := .buildArgs }}
-          <tr>
-            <td>{{ $key }}</td>
-            <td> {{ $value }}</td>
-          </tr>
+        <div class="panel-body">
+          {{ if .error }}
+          {{ else }}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $key, $value := .buildArgs }}
+              <tr>
+                <td>{{ $key }}</td>
+                <td> {{ $value }}</td>
+              </tr>
+              {{ end }}
+            </tbody>
+          </table>
           {{ end }}
-        </tbody>
-      </table>
-      {{ end }}
-
-      <h2>Environment variables</h2>
-      {{ if .error }}
-      {{ else }}
-      <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
-        <div class="form-group">
-          <label for="envKeyInput">Key</label>
-          <input type="text" class="form-control" id="envKeyInput" name="key" placeholder="key">
         </div>
-        <div class="form-group">
-          <label for="envValueInput">Value</label>
-          <input type="text" class="form-control" id="envValueInput" name="value" placeholder="value">
-        </div>
-        <button type="submit" class="btn btn-primary">Add new variable</button>
-      </form>
-      <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
-        <div class="form-group">
-          <input type="file" id="dotenvInput" name="dotenv">
-        </div>
-        <button type="submit" class="btn btn-primary">Upload .env</button>
-      </form>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{ range $key, $value := .envs }}
-          <tr>
-            <td>{{ $key }}</td>
-            <td> {{ $value }}</td>
-          </tr>
+        <div class="panel-footer">
+          {{ if .error }}
+          {{ else }}
+          <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
+            <div class="form-group">
+              <label for="buildArgKeyInput">Key</label>
+              <input type="text" class="form-control" id="buildArgKeyInput" name="key" placeholder="key">
+            </div>
+            <div class="form-group">
+              <label for="buildArgValueInput">Value</label>
+              <input type="text" class="form-control" id="buildArgValueInput" name="value" placeholder="value">
+            </div>
+            <button type="submit" class="btn btn-primary">Add new variable</button>
+          </form>
           {{ end }}
-        </tbody>
-      </table>
-      {{ end }}
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Environment variables</h3>
+        </div>
+        <div class="panel-body">
+          {{ if .error }}
+          {{ else }}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $key, $value := .envs }}
+              <tr>
+                <td>{{ $key }}</td>
+                <td> {{ $value }}</td>
+              </tr>
+              {{ end }}
+            </tbody>
+          </table>
+          {{ end }}
+        </div>
+        <div class="panel-footer">
+          {{ if .error }}
+          {{ else }}
+          <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
+            <div class="form-group">
+              <label for="envKeyInput">Key</label>
+              <input type="text" class="form-control" id="envKeyInput" name="key" placeholder="key">
+            </div>
+            <div class="form-group">
+              <label for="envValueInput">Value</label>
+              <input type="text" class="form-control" id="envValueInput" name="value" placeholder="value">
+            </div>
+            <button type="submit" class="btn btn-primary">Add new variable</button>
+          </form>
+          <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
+            <div class="form-group">
+              <input type="file" id="dotenvInput" name="dotenv">
+            </div>
+            <button type="submit" class="btn btn-primary">Upload .env</button>
+          </form>
+          {{ end }}
+        </div>
+      </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
