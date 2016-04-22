@@ -26,6 +26,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if !etcd.HasKey("/paus") {
+		if err = etcd.Mkdir("/paus"); err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*")
 
