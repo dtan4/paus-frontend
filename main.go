@@ -32,6 +32,12 @@ func main() {
 		}
 	}
 
+	if !etcd.HasKey("/paus/users") {
+		if err = etcd.Mkdir("/paus/users"); err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*")
 
@@ -46,6 +52,16 @@ func main() {
 
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
+
+		if !etcd.HasKey("/paus/users/" + username) {
+			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+				"error":   true,
+				"message": "User " + username + " does not exist.",
+			})
+
+			return
+		}
+
 		apps, err := Apps(etcd, username)
 
 		if err != nil {
@@ -65,8 +81,28 @@ func main() {
 	})
 
 	r.GET("/users/:username/:appName", func(c *gin.Context) {
-		appName := c.Param("appName")
 		username := c.Param("username")
+
+		if !etcd.HasKey("/paus/users/" + username) {
+			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+				"error":   true,
+				"message": "User " + username + " does not exist.",
+			})
+
+			return
+		}
+
+		appName := c.Param("appName")
+
+		if !etcd.HasKey("/paus/users/" + username + "/" + appName) {
+			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+				"error":   true,
+				"message": "Application " + appName + " does not exist.",
+			})
+
+			return
+		}
+
 		urls, err := AppURLs(etcd, config.URIScheme, config.BaseDomain, username, appName)
 
 		if err != nil {
