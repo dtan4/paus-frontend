@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os/exec"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -246,9 +245,7 @@ func main() {
 	r.POST("/submit", func(c *gin.Context) {
 		username := c.PostForm("username")
 		pubKey := c.PostForm("pubKey")
-
-		// libcompose does not support `docker-compose run`...
-		out, err := exec.Command("docker-compose", "-p", "paus", "run", "--rm", "gitreceive-upload-key", username, pubKey).Output()
+		out, err := CreateUser(etcd, username, pubKey)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
@@ -263,7 +260,7 @@ func main() {
 		c.HTML(http.StatusCreated, "index.tmpl", gin.H{
 			"alert":   true,
 			"error":   false,
-			"message": strings.Join([]string{"fingerprint: ", string(out)}, ""),
+			"message": strings.Join([]string{"fingerprint: ", out}, ""),
 		})
 	})
 
