@@ -7,12 +7,20 @@
   </head>
   <body>
     <div class="container">
-      <h1>{{ .user }} Application list</h1>
+      <h1>{{ .user }} Applications</h1>
       {{ if .error }}
       <div class="alert alert-danger" role="alert">
         {{ .message }}
       </div>
       {{ else }}
+      <form class="form-inline" method="POST" action="/users/{{ .user }}/apps">
+        <div class="form-group">
+          <label for="appNameInput">Application name</label>
+          <input type="text" class="form-control" id="appNameInput" name="appName" placeholder="Application name">
+        </div>
+        <button type="submit" class="btn btn-primary">Create new Application</button>
+      </form>
+
       <div class="list-group">
         {{ range .apps }}<a class="list-group-item" href="/users/{{ $.user }}/apps/{{ . }}">{{ . }}</a>{{ else }}No application found{{ end }}
       </div>

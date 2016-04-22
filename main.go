@@ -80,6 +80,25 @@ func main() {
 		})
 	})
 
+	r.POST("/users/:username/apps", func(c *gin.Context) {
+		username := c.Param("username")
+		appName := c.PostForm("appName")
+
+		err := CreateApp(etcd, username, appName)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "users.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+	})
+
 	r.GET("/users/:username/apps/:appName", func(c *gin.Context) {
 		username := c.Param("username")
 

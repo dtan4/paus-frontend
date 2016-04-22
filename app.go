@@ -43,6 +43,20 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 	return result, nil
 }
 
+func CreateApp(etcd *Etcd, username, appName string) error {
+	if err := etcd.Mkdir("/paus/users/" + username + "/" + appName); err != nil {
+		return err
+	}
+
+	for _, resource := range []string{"build-args", "envs", "revisions"} {
+		if err := etcd.Mkdir("/paus/users/" + username + "/" + appName + "/" + resource); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func LatestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
 	identifier := username + "-" + appName
 
