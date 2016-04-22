@@ -46,8 +46,8 @@
             <tbody>
               {{ range $key, $value := .buildArgs }}
               <tr>
-                <td>{{ $key }}</td>
-                <td> {{ $value }}</td>
+                <td><tt>{{ $key }}</tt></td>
+                <td><tt>{{ $value }}</tt></td>
               </tr>
               {{ end }}
             </tbody>
@@ -88,8 +88,8 @@
             <tbody>
               {{ range $key, $value := .envs }}
               <tr>
-                <td>{{ $key }}</td>
-                <td> {{ $value }}</td>
+                <td><tt>{{ $key }}</tt></td>
+                <td><tt>{{ $value }}</tt></td>
               </tr>
               {{ end }}
             </tbody>
