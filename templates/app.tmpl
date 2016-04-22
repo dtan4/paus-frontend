@@ -25,7 +25,7 @@
       <h2>Build-time variables</h2>
       {{ if .error }}
       {{ else }}
-      <form class="form-inline" method="POST" action="/users/{{ .user }}/{{ .app }}/build-args">
+      <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
         <div class="form-group">
           <label for="buildArgKeyInput">Key</label>
           <input type="text" class="form-control" id="buildArgKeyInput" name="key" placeholder="key">
@@ -57,7 +57,7 @@
       <h2>Environment variables</h2>
       {{ if .error }}
       {{ else }}
-      <form class="form-inline" method="POST" action="/users/{{ .user }}/{{ .app }}/envs">
+      <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
         <div class="form-group">
           <label for="envKeyInput">Key</label>
           <input type="text" class="form-control" id="envKeyInput" name="key" placeholder="key">
@@ -68,7 +68,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Add new variable</button>
       </form>
-      <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/{{ .app }}/envs/upload">
+      <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
         <div class="form-group">
           <input type="file" id="dotenvInput" name="dotenv">
         </div>

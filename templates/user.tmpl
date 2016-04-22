@@ -14,7 +14,7 @@
       </div>
       {{ else }}
       <div class="list-group">
-        {{ range .apps }}<a class="list-group-item" href="/users/{{ $.user }}/{{ . }}">{{ . }}</a>{{ else }}No application found{{ end }}
+        {{ range .apps }}<a class="list-group-item" href="/users/{{ $.user }}/apps/{{ . }}">{{ . }}</a>{{ else }}No application found{{ end }}
       </div>
       {{ end }}
     </div>

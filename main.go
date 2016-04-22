@@ -80,7 +80,7 @@ func main() {
 		})
 	})
 
-	r.GET("/users/:username/:appName", func(c *gin.Context) {
+	r.GET("/users/:username/apps/:appName", func(c *gin.Context) {
 		username := c.Param("username")
 
 		if !etcd.HasKey("/paus/users/" + username) {
@@ -149,7 +149,7 @@ func main() {
 		})
 	})
 
-	r.POST("/users/:username/:appName/build-args", func(c *gin.Context) {
+	r.POST("/users/:username/apps/:appName/build-args", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
 		key := c.PostForm("key")
@@ -167,10 +167,10 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
 	})
 
-	r.POST("/users/:username/:appName/envs", func(c *gin.Context) {
+	r.POST("/users/:username/apps/:appName/envs", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
 		key := c.PostForm("key")
@@ -188,10 +188,10 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
 	})
 
-	r.POST("/users/:username/:appName/envs/upload", func(c *gin.Context) {
+	r.POST("/users/:username/apps/:appName/envs/upload", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
 
@@ -217,7 +217,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
 	})
 
 	r.POST("/submit", func(c *gin.Context) {
