@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,7 +55,7 @@ func main() {
 		if !etcd.HasKey("/paus/users/" + username) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
 				"error":   true,
-				"message": "User " + username + " does not exist.",
+				"message": fmt.Sprintf("User %s does not exist.", username),
 			})
 
 			return
@@ -66,7 +66,7 @@ func main() {
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -89,7 +89,7 @@ func main() {
 			c.HTML(http.StatusInternalServerError, "users.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -106,7 +106,7 @@ func main() {
 		if !etcd.HasKey("/paus/users/" + username) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
 				"error":   true,
-				"message": "User " + username + " does not exist.",
+				"message": fmt.Sprintf("User %s does not exist.", username),
 			})
 
 			return
@@ -117,7 +117,7 @@ func main() {
 		if !etcd.HasKey("/paus/users/" + username + "/" + appName) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
 				"error":   true,
-				"message": "Application " + appName + " does not exist.",
+				"message": fmt.Sprintf("Application %s does not exist.", appName),
 			})
 
 			return
@@ -128,7 +128,7 @@ func main() {
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -139,7 +139,7 @@ func main() {
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -150,7 +150,7 @@ func main() {
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -183,7 +183,7 @@ func main() {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -204,7 +204,7 @@ func main() {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -223,7 +223,7 @@ func main() {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -233,7 +233,7 @@ func main() {
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -245,13 +245,36 @@ func main() {
 	r.POST("/submit", func(c *gin.Context) {
 		username := c.PostForm("username")
 		pubKey := c.PostForm("pubKey")
-		out, err := CreateUser(etcd, username, pubKey)
+
+		if UserExists(etcd, username) {
+			c.HTML(http.StatusConflict, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": fmt.Sprintf("User %s already exists.", username),
+			})
+
+			return
+		}
+
+		err := CreateUser(etcd, username)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+				"message": fmt.Sprintf("Error: %s", err.Error()),
+			})
+
+			return
+		}
+
+		out, err := UploadPublicKey(username, pubKey)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": fmt.Sprintf("Error: %s", err.Error()),
 			})
 
 			return
@@ -260,7 +283,7 @@ func main() {
 		c.HTML(http.StatusCreated, "index.tmpl", gin.H{
 			"alert":   true,
 			"error":   false,
-			"message": strings.Join([]string{"fingerprint: ", out}, ""),
+			"message": fmt.Sprintf("Fingerprint: %s", out),
 		})
 	})
 
