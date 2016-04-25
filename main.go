@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -245,7 +246,30 @@ func main() {
 	r.POST("/submit", func(c *gin.Context) {
 		username := c.PostForm("username")
 		pubKey := c.PostForm("pubKey")
-		out, err := CreateUser(etcd, username, pubKey)
+
+		if UserExists(etcd, username) {
+			c.HTML(http.StatusConflict, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": fmt.Sprintf("User %s already exists.", username),
+			})
+
+			return
+		}
+
+		err := CreateUser(etcd, username)
+
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": strings.Join([]string{"error: ", err.Error()}, ""),
+			})
+
+			return
+		}
+
+		out, err := UploadPublicKey(username, pubKey)
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
