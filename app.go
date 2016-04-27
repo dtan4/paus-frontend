@@ -4,6 +4,10 @@ import (
 	"strings"
 )
 
+func AppExists(etcd *Etcd, username, appName string) bool {
+	return etcd.HasKey("/paus/users/" + username + "/apps/" + appName)
+}
+
 func Apps(etcd *Etcd, username string) ([]string, error) {
 	apps, err := etcd.List("/paus/users/"+username+"/apps/", true)
 
