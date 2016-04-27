@@ -52,7 +52,7 @@ func main() {
 	r.GET("/users/:username", func(c *gin.Context) {
 		username := c.Param("username")
 
-		if !etcd.HasKey("/paus/users/" + username) {
+		if !UserExists(etcd, username) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
@@ -103,7 +103,7 @@ func main() {
 
 		username := c.Param("username")
 
-		if !etcd.HasKey("/paus/users/" + username) {
+		if !UserExists(etcd, username) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
@@ -114,7 +114,7 @@ func main() {
 
 		appName := c.Param("appName")
 
-		if !etcd.HasKey("/paus/users/" + username + "/" + appName) {
+		if !AppExists(etcd, username, appName) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("Application %s does not exist.", appName),
