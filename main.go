@@ -247,7 +247,7 @@ func main() {
 		pubKey := c.PostForm("pubKey")
 
 		if UserExists(etcd, username) {
-			c.HTML(http.StatusConflict, "app.tmpl", gin.H{
+			c.HTML(http.StatusConflict, "index.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
 				"message": fmt.Sprintf("User %s already exists.", username),
