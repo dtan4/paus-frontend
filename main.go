@@ -281,9 +281,10 @@ func main() {
 		}
 
 		c.HTML(http.StatusCreated, "index.tmpl", gin.H{
-			"alert":   true,
-			"error":   false,
-			"message": fmt.Sprintf("Fingerprint: %s", out),
+			"alert":    true,
+			"error":    false,
+			"message":  fmt.Sprintf("Fingerprint: %s", out),
+			"username": username,
 		})
 	})
 

@@ -15,7 +15,7 @@
 
       {{ if .alert }}
       <div class="alert {{ if .error }}alert-danger{{ else }}alert-success{{ end }}" role="alert">
-        {{ .message }}
+        {{ .message }}{{ if .error }}{{ else }} <a href="/users/{{ .username }}">Jump to user page</a>{{ end }}
       </div>
       {{ end }}
 
