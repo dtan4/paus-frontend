@@ -114,7 +114,7 @@ func main() {
 
 		appName := c.Param("appName")
 
-		if !etcd.HasKey("/paus/users/" + username + "/" + appName) {
+		if !etcd.HasKey("/paus/users/" + username + "/apps/" + appName) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("Application %s does not exist.", appName),

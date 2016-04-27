@@ -16,13 +16,13 @@ var (
 )
 
 func AddEnvironmentVariable(etcd *Etcd, username, appName, key, value string) error {
-	err := etcd.Set("/paus/users/"+username+"/"+appName+"/envs/"+key, value)
+	err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value)
 
 	return err
 }
 
 func EnvironmentVariables(etcd *Etcd, username, appName string) (*map[string]string, error) {
-	envs, err := etcd.ListWithValues("/paus/users/"+username+"/"+appName+"/envs/", true)
+	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/envs/", true)
 
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func EnvironmentVariables(etcd *Etcd, username, appName string) (*map[string]str
 	result := map[string]string{}
 
 	for key, value := range *envs {
-		envKey := strings.Replace(key, "/paus/users/"+username+"/"+appName+"/envs/", "", 1)
+		envKey := strings.Replace(key, "/paus/users/"+username+"/apps/"+appName+"/envs/", "", 1)
 		result[envKey] = value
 	}
 

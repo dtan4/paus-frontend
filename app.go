@@ -5,7 +5,7 @@ import (
 )
 
 func Apps(etcd *Etcd, username string) ([]string, error) {
-	apps, err := etcd.List("/paus/users/"+username+"/", true)
+	apps, err := etcd.List("/paus/users/"+username+"/apps/", true)
 
 	if err != nil {
 		return nil, err
@@ -14,7 +14,7 @@ func Apps(etcd *Etcd, username string) ([]string, error) {
 	result := make([]string, 0)
 
 	for _, app := range apps {
-		appName := strings.Replace(app, "/paus/users/"+username+"/", "", 1)
+		appName := strings.Replace(app, "/paus/users/"+username+"/apps/", "", 1)
 		result = append(result, appName)
 	}
 
@@ -26,7 +26,7 @@ func AppURL(uriScheme, identifier, baseDomain string) string {
 }
 
 func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	revisions, err := etcd.List("/paus/users/"+username+"/"+appName+"/revisions/", true)
+	revisions, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/revisions/", true)
 
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 	result := make([]string, 0)
 
 	for _, revision := range revisions {
-		revision := strings.Replace(revision, "/paus/users/"+username+"/"+appName+"/revisions/", "", 1)
+		revision := strings.Replace(revision, "/paus/users/"+username+"/apps/"+appName+"/revisions/", "", 1)
 		identifier := username + "-" + appName + "-" + revision
 		result = append(result, AppURL(uriScheme, identifier, baseDomain))
 	}
@@ -44,12 +44,12 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 }
 
 func CreateApp(etcd *Etcd, username, appName string) error {
-	if err := etcd.Mkdir("/paus/users/" + username + "/" + appName); err != nil {
+	if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName); err != nil {
 		return err
 	}
 
 	for _, resource := range []string{"build-args", "envs", "revisions"} {
-		if err := etcd.Mkdir("/paus/users/" + username + "/" + appName + "/" + resource); err != nil {
+		if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName + "/" + resource); err != nil {
 			return err
 		}
 	}
