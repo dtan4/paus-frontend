@@ -247,10 +247,11 @@ func main() {
 		pubKey := c.PostForm("pubKey")
 
 		if UserExists(etcd, username) {
-			c.HTML(http.StatusConflict, "app.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": fmt.Sprintf("User %s already exists.", username),
+			c.HTML(http.StatusConflict, "index.tmpl", gin.H{
+				"alert":      true,
+				"error":      true,
+				"message":    fmt.Sprintf("User %s already exists.", username),
+				"baseDomain": config.BaseDomain,
 			})
 
 			return
@@ -260,9 +261,10 @@ func main() {
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"alert":      true,
+				"error":      true,
+				"message":    fmt.Sprintf("Error: %s", err.Error()),
+				"baseDomain": config.BaseDomain,
 			})
 
 			return
@@ -272,18 +274,21 @@ func main() {
 
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"alert":      true,
+				"error":      true,
+				"message":    fmt.Sprintf("Error: %s", err.Error()),
+				"baseDomain": config.BaseDomain,
 			})
 
 			return
 		}
 
 		c.HTML(http.StatusCreated, "index.tmpl", gin.H{
-			"alert":   true,
-			"error":   false,
-			"message": fmt.Sprintf("Fingerprint: %s", out),
+			"alert":      true,
+			"error":      false,
+			"message":    fmt.Sprintf("Fingerprint: %s", out),
+			"baseDomain": config.BaseDomain,
+			"username":   username,
 		})
 	})
 
