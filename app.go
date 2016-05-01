@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func AppExists(etcd *Etcd, username, appName string) bool {
@@ -12,7 +15,7 @@ func Apps(etcd *Etcd, username string) ([]string, error) {
 	apps, err := etcd.List("/paus/users/"+username+"/apps/", true)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("Failed to list up apps. username: %s", username))
 	}
 
 	result := make([]string, 0)
@@ -33,7 +36,7 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 	revisions, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/revisions/", true)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("Failed to list up app URLs. username: %s, appName: %s", username, appName))
 	}
 
 	result := make([]string, 0)
@@ -49,12 +52,15 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 
 func CreateApp(etcd *Etcd, username, appName string) error {
 	if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName); err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("Failed to create app. username: %s, appName: %s", username, appName))
 	}
 
 	for _, resource := range []string{"build-args", "envs", "revisions"} {
 		if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName + "/" + resource); err != nil {
-			return err
+			return errors.Wrap(
+				err,
+				fmt.Sprintf("Failed to create app resource. username: %s, appName: %s, resource: %s", username, appName, resource),
+			)
 		}
 	}
 

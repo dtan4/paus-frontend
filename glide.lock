@@ -1,5 +1,5 @@
-hash: 4cfc5c254007951ab21067120845fe7ac7c0bdb8ded21cd0e1b78268eab707e9
-updated: 2016-04-19T16:19:14.204234948+09:00
+hash: 8bcbd73a37fb815fbdc4f06d280da2074179f7d8227efc4be67cfe199f5f7fcd
+updated: 2016-05-01T23:50:08.912212047+09:00
 imports:
 - name: github.com/coreos/etcd
   version: 29853967681e161e756a6221b681743dc053604c
@@ -20,6 +20,8 @@ imports:
   version: cea086319492c3940683ea5e122aa5de70a33923
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/pkg/errors
+  version: 7a0abd8f636d0048ea2fca80a67a23ef8c0e5c7d
 - name: github.com/ugorji/go
   version: a396ed22fc049df733440d90efe17475e3929ccb
   subpackages:
