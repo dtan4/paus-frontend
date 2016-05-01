@@ -60,7 +60,7 @@ func LoadDotenv(etcd *Etcd, username, appName string, dotenvFile io.Reader) erro
 		key, value := matchResult[1], matchResult[2]
 
 		if err := AddEnvironmentVariable(etcd, username, appName, key, value); err != nil {
-			return errors.Wrap(err, "Failed to load environment variables from dotenv")
+			return errors.Wrap(err, "Failed to load dotenv.")
 		}
 	}
 
