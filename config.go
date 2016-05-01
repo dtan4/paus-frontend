@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/kelseyhightower/envconfig"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -21,7 +22,7 @@ func LoadConfig() (*Config, error) {
 	err := envconfig.Process("paus", &config)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Failed to load config from envs.")
 	}
 
 	return &config, nil

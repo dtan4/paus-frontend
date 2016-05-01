@@ -2,9 +2,12 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -18,14 +21,21 @@ var (
 func AddEnvironmentVariable(etcd *Etcd, username, appName, key, value string) error {
 	err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value)
 
-	return err
+	if err != nil {
+		return errors.Wrap(
+			err,
+			fmt.Sprintf("Failed to add environment variable. username: %s, appName: %s, key: %s, value: %s", username, appName, key, value),
+		)
+	}
+
+	return nil
 }
 
 func EnvironmentVariables(etcd *Etcd, username, appName string) (*map[string]string, error) {
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/envs/", true)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("Failed to list environment variables. username: %s, appName: %s", username, appName))
 	}
 
 	result := map[string]string{}
@@ -53,7 +63,7 @@ func LoadDotenv(etcd *Etcd, username, appName string, dotenvFile io.Reader) erro
 		err := AddEnvironmentVariable(etcd, username, appName, key, value)
 
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Failed to load environment variables from dotenv")
 		}
 	}
 
