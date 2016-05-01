@@ -2,17 +2,19 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 func main() {
 	config, err := LoadConfig()
 
 	if err != nil {
-		log.Fatal(err)
+		errors.Fprint(os.Stderr, err)
+		os.Exit(1)
 	}
 
 	if config.ReleaseMode {
@@ -22,18 +24,21 @@ func main() {
 	etcd, err := NewEtcd(config.EtcdEndpoint)
 
 	if err != nil {
-		log.Fatal(err)
+		errors.Fprint(os.Stderr, err)
+		os.Exit(1)
 	}
 
 	if !etcd.HasKey("/paus") {
 		if err = etcd.Mkdir("/paus"); err != nil {
-			log.Fatal(err)
+			errors.Fprint(os.Stderr, err)
+			os.Exit(1)
 		}
 	}
 
 	if !etcd.HasKey("/paus/users") {
 		if err = etcd.Mkdir("/paus/users"); err != nil {
-			log.Fatal(err)
+			errors.Fprint(os.Stderr, err)
+			os.Exit(1)
 		}
 	}
 
@@ -64,9 +69,11 @@ func main() {
 		apps, err := Apps(etcd, username)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to list apps.",
 			})
 
 			return
@@ -86,10 +93,12 @@ func main() {
 		err := CreateApp(etcd, username, appName)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "users.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to create app.",
 			})
 
 			return
@@ -126,9 +135,11 @@ func main() {
 		urls, err := AppURLs(etcd, config.URIScheme, config.BaseDomain, username, appName)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to list app URLs.",
 			})
 
 			return
@@ -137,9 +148,11 @@ func main() {
 		envs, err := EnvironmentVariables(etcd, username, appName)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to list environment variables.",
 			})
 
 			return
@@ -148,9 +161,11 @@ func main() {
 		buildArgs, err := BuildArgs(etcd, username, appName)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to list build args.",
 			})
 
 			return
@@ -180,10 +195,12 @@ func main() {
 		err := AddBuildArg(etcd, username, appName, key, value)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to add build arg.",
 			})
 
 			return
@@ -201,10 +218,12 @@ func main() {
 		err := AddEnvironmentVariable(etcd, username, appName, key, value)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to add environment variable.",
 			})
 
 			return
@@ -220,20 +239,24 @@ func main() {
 		dotenvFile, _, err := c.Request.FormFile("dotenv")
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to upload dotenv.",
 			})
 
 			return
 		}
 
 		if err = LoadDotenv(etcd, username, appName, dotenvFile); err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 				"alert":   true,
 				"error":   true,
-				"message": fmt.Sprintf("Error: %s", err.Error()),
+				"message": "Failed to load dotenv.",
 			})
 
 			return
@@ -260,10 +283,12 @@ func main() {
 		err := CreateUser(etcd, username)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
 				"alert":      true,
 				"error":      true,
-				"message":    fmt.Sprintf("Error: %s", err.Error()),
+				"message":    "Failed to create user.",
 				"baseDomain": config.BaseDomain,
 			})
 
@@ -273,10 +298,12 @@ func main() {
 		out, err := UploadPublicKey(username, pubKey)
 
 		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
 			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
 				"alert":      true,
 				"error":      true,
-				"message":    fmt.Sprintf("Error: %s", err.Error()),
+				"message":    "Failed to upload SSH public key.",
 				"baseDomain": config.BaseDomain,
 			})
 
