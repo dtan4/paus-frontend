@@ -8,3 +8,4 @@ import:
   subpackages:
   - context
 - package: github.com/kelseyhightower/envconfig
+- package: github.com/pkg/errors
