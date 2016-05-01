@@ -19,9 +19,7 @@ var (
 )
 
 func AddEnvironmentVariable(etcd *Etcd, username, appName, key, value string) error {
-	err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value)
-
-	if err != nil {
+	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value); err != nil {
 		return errors.Wrap(
 			err,
 			fmt.Sprintf("Failed to add environment variable. username: %s, appName: %s, key: %s, value: %s", username, appName, key, value),
@@ -60,9 +58,8 @@ func LoadDotenv(etcd *Etcd, username, appName string, dotenvFile io.Reader) erro
 		}
 
 		key, value := matchResult[1], matchResult[2]
-		err := AddEnvironmentVariable(etcd, username, appName, key, value)
 
-		if err != nil {
+		if err := AddEnvironmentVariable(etcd, username, appName, key, value); err != nil {
 			return errors.Wrap(err, "Failed to load environment variables from dotenv")
 		}
 	}

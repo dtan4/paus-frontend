@@ -8,9 +8,7 @@ import (
 )
 
 func CreateUser(etcd *Etcd, username string) error {
-	err := etcd.Mkdir("/paus/users/" + username)
-
-	if err != nil {
+	if err := etcd.Mkdir("/paus/users/" + username); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Failed to create user. username: %s", username))
 	}
 

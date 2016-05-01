@@ -8,9 +8,7 @@ import (
 )
 
 func AddBuildArg(etcd *Etcd, username, appName, key, value string) error {
-	err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/build-args/"+key, value)
-
-	if err != nil {
+	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/build-args/"+key, value); err != nil {
 		return errors.Wrap(
 			err,
 			fmt.Sprintf("Failed to add build arg. username: %s, appName: %s, key: %s, value: %s", username, appName, key, value),
