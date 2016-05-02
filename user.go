@@ -12,6 +12,10 @@ func CreateUser(etcd *Etcd, username string) error {
 		return errors.Wrap(err, fmt.Sprintf("Failed to create user. username: %s", username))
 	}
 
+	if err := etcd.Mkdir("/paus/users/" + username + "/apps"); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Failed to create user app directory. username: %s", username))
+	}
+
 	return nil
 }
 
