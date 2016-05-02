@@ -28,6 +28,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = etcd.Set("/paus/uri-scheme", config.URIScheme); err != nil {
+		errors.Fprint(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	if !etcd.HasKey("/paus") {
 		if err = etcd.Mkdir("/paus"); err != nil {
 			errors.Fprint(os.Stderr, err)
