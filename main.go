@@ -9,6 +9,26 @@ import (
 	"github.com/pkg/errors"
 )
 
+func initialize(config *Config, etcd *Etcd) error {
+	if !etcd.HasKey("/paus") {
+		if err := etcd.Mkdir("/paus"); err != nil {
+			return errors.Wrap(err, "Failed to create root directory.")
+		}
+	}
+
+	if !etcd.HasKey("/paus/users") {
+		if err := etcd.Mkdir("/paus/users"); err != nil {
+			return errors.Wrap(err, "Failed to create users directory.")
+		}
+	}
+
+	if err := etcd.Set("/paus/uri-scheme", config.URIScheme); err != nil {
+		return errors.Wrap(err, "Failed to set URI scheme in etcd.")
+	}
+
+	return nil
+}
+
 func main() {
 	config, err := LoadConfig()
 
@@ -28,23 +48,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = etcd.Set("/paus/uri-scheme", config.URIScheme); err != nil {
+	if err = initialize(config, etcd); err != nil {
 		errors.Fprint(os.Stderr, err)
 		os.Exit(1)
-	}
-
-	if !etcd.HasKey("/paus") {
-		if err = etcd.Mkdir("/paus"); err != nil {
-			errors.Fprint(os.Stderr, err)
-			os.Exit(1)
-		}
-	}
-
-	if !etcd.HasKey("/paus/users") {
-		if err = etcd.Mkdir("/paus/users"); err != nil {
-			errors.Fprint(os.Stderr, err)
-			os.Exit(1)
-		}
 	}
 
 	r := gin.Default()
