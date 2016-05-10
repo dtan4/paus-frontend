@@ -43,7 +43,7 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 
 	for _, revision := range revisions {
 		revision := strings.Replace(revision, "/paus/users/"+username+"/apps/"+appName+"/revisions/", "", 1)
-		identifier := username + "-" + appName + "-" + revision
+		identifier := username + "-" + appName + "-" + revision[0:8]
 		result = append(result, AppURL(uriScheme, identifier, baseDomain))
 	}
 
