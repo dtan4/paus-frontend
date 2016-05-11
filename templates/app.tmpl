@@ -4,6 +4,11 @@
     <title>Paus</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style type="text/css">
+     .monospace {
+       font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+     }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -49,10 +54,10 @@
                 <form method="POST" action="/users/{{ $.user }}/apps/{{ $.app }}/build-args/delete">
                   <input type="hidden" name="key" value="{{ $key }}">
                   <td>
-                    <input type="text" class="form-control" value="{{ $key }}" disabled>
+                    <input type="text" class="form-control monospace" value="{{ $key }}" disabled>
                   </td>
                   <td>
-                    <input type="text" class="form-control" value="{{ $value }}" disabled>
+                    <input type="text" class="form-control monospace" value="{{ $value }}" disabled>
                   </td>
                   <td class="pull-right">
                     <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
@@ -60,24 +65,21 @@
                 </form>
               </tr>
               {{ end }}
+              <tr>
+                <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
+                  <td>
+                    <input type="text" class="form-control monospace" name="key" placeholder="KEY">
+                  </td>
+                  <td>
+                    <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
+                  </td>
+                  <td class="pull-right">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+                  </td>
+                </form>
+              </tr>
             </tbody>
           </table>
-          {{ end }}
-        </div>
-        <div class="panel-footer">
-          {{ if .error }}
-          {{ else }}
-          <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
-            <div class="form-group">
-              <label for="buildArgKeyInput">Key</label>
-              <input type="text" class="form-control" id="buildArgKeyInput" name="key" placeholder="key">
-            </div>
-            <div class="form-group">
-              <label for="buildArgValueInput">Value</label>
-              <input type="text" class="form-control" id="buildArgValueInput" name="value" placeholder="value">
-            </div>
-            <button type="submit" class="btn btn-primary">Add new variable</button>
-          </form>
           {{ end }}
         </div>
       </div>
@@ -102,10 +104,10 @@
                 <form method="POST" action="/users/{{ $.user }}/apps/{{ $.app }}/envs/delete">
                   <input type="hidden" name="key" value="{{ $key }}">
                   <td>
-                    <input type="text" class="form-control" value="{{ $key }}" disabled>
+                    <input type="text" class="form-control monospace" value="{{ $key }}" disabled>
                   </td>
                   <td>
-                    <input type="text" class="form-control" value="{{ $value }}" disabled>
+                    <input type="text" class="form-control monospace" value="{{ $value }}" disabled>
                   </td>
                   <td class="pull-right">
                     <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
@@ -113,6 +115,19 @@
                 </form>
               </tr>
               {{ end }}
+              <tr>
+                <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
+                  <td>
+                    <input type="text" class="form-control monospace" name="key" placeholder="KEY">
+                  </td>
+                  <td>
+                    <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
+                  </td>
+                  <td class="pull-right">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+                  </td>
+                </form>
+              </tr>
             </tbody>
           </table>
           {{ end }}
@@ -120,18 +135,7 @@
         <div class="panel-footer">
           {{ if .error }}
           {{ else }}
-          <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
-            <div class="form-group">
-              <label for="envKeyInput">Key</label>
-              <input type="text" class="form-control" id="envKeyInput" name="key" placeholder="key">
-            </div>
-            <div class="form-group">
-              <label for="envValueInput">Value</label>
-              <input type="text" class="form-control" id="envValueInput" name="value" placeholder="value">
-            </div>
-            <button type="submit" class="btn btn-primary">Add new variable</button>
-          </form>
-          <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
+          <form class="form-inline text-right" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
             <div class="form-group">
               <input type="file" id="dotenvInput" name="dotenv">
             </div>
