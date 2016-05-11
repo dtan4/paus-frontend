@@ -65,18 +65,21 @@
                 </form>
               </tr>
               {{ end }}
+              <tr>
+                <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
+                  <td>
+                    <input type="text" class="form-control monospace" name="key" placeholder="KEY">
+                  </td>
+                  <td>
+                    <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
+                  </td>
+                  <td class="pull-right">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+                  </td>
+                </form>
+              </tr>
             </tbody>
           </table>
-          {{ end }}
-        </div>
-        <div class="panel-footer">
-          {{ if .error }}
-          {{ else }}
-          <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
-            <input type="text" class="form-control monospace" name="key" placeholder="KEY">
-            <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
-            <button type="submit" class="btn btn-primary">Add new variable</button>
-          </form>
           {{ end }}
         </div>
       </div>
@@ -112,6 +115,19 @@
                 </form>
               </tr>
               {{ end }}
+              <tr>
+                <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
+                  <td>
+                    <input type="text" class="form-control monospace" name="key" placeholder="KEY">
+                  </td>
+                  <td>
+                    <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
+                  </td>
+                  <td class="pull-right">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+                  </td>
+                </form>
+              </tr>
             </tbody>
           </table>
           {{ end }}
@@ -119,12 +135,7 @@
         <div class="panel-footer">
           {{ if .error }}
           {{ else }}
-          <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
-            <input type="text" class="form-control monospace" name="key" placeholder="KEY">
-            <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
-            <button type="submit" class="btn btn-primary">Add new variable</button>
-          </form>
-          <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
+          <form class="form-inline text-right" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
             <div class="form-group">
               <input type="file" id="dotenvInput" name="dotenv">
             </div>
