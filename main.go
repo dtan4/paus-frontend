@@ -30,6 +30,8 @@ func initialize(config *Config, etcd *Etcd) error {
 }
 
 func main() {
+	var out string
+
 	config, err := LoadConfig()
 
 	if err != nil {
@@ -306,19 +308,23 @@ func main() {
 			return
 		}
 
-		out, err := UploadPublicKey(username, pubKey)
+		if !config.SkipKeyUpload {
+			out, err = UploadPublicKey(username, pubKey)
 
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
+			if err != nil {
+				errors.Fprint(os.Stderr, err)
 
-			c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
-				"alert":      true,
-				"error":      true,
-				"message":    "Failed to upload SSH public key.",
-				"baseDomain": config.BaseDomain,
-			})
+				c.HTML(http.StatusInternalServerError, "index.tmpl", gin.H{
+					"alert":      true,
+					"error":      true,
+					"message":    "Failed to upload SSH public key.",
+					"baseDomain": config.BaseDomain,
+				})
 
-			return
+				return
+			}
+		} else {
+			out = "(Skipped)"
 		}
 
 		c.HTML(http.StatusCreated, "index.tmpl", gin.H{

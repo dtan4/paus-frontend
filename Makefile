@@ -1,5 +1,6 @@
 BINARY := paus-frontend
 BINARY_DIR := bin
+ETCD_CONTAINER := etcd
 DOCKER_REPOSITORY := quay.io
 DOCKER_IMAGE_NAME := $(DOCKER_REPOSITORY)/dtan4/paus-frontend
 DOCKER_IMAGE_TAG := latest
@@ -29,6 +30,22 @@ docker-build: clean
 
 docker-release-build: build-linux
 	docker build -f Dockerfile.release -t $(DOCKER_IMAGE) .
+
+run-etcd: stop-etcd
+	docker run -d -p 4001:4001 -p 2380:2380 -p 2379:2379 --name $(ETCD_CONTAINER) \
+		quay.io/coreos/etcd:latest \
+			-name etcd0 \
+			-advertise-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+			-listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+			-initial-advertise-peer-urls http://0.0.0.0:2380 \
+			-listen-peer-urls http://0.0.0.0:2380 \
+			-initial-cluster-token etcd-cluster-1 \
+			-initial-cluster etcd0=http://0.0.0.0:2380 \
+			-initial-cluster-state new
+
+stop-etcd:
+	docker stop $(ETCD_CONTAINER) > /dev/null 2>&1 || true
+	docker rm $(ETCD_CONTAINER) > /dev/null 2>&1 || true
 
 test:
 	go test

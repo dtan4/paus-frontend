@@ -10,10 +10,11 @@ const (
 )
 
 type Config struct {
-	BaseDomain   string `envconfig:"base_domain"   required:"true"`
-	EtcdEndpoint string `envconfig:"etcd_endpoint" default:"http://localhost:2379"`
-	ReleaseMode  bool   `envconfig:"release_mode"  default:"false"`
-	URIScheme    string `envconfig:"uri_scheme"    default:"http"`
+	BaseDomain    string `envconfig:"base_domain"   required:"true"`
+	EtcdEndpoint  string `envconfig:"etcd_endpoint" default:"http://localhost:2379"`
+	ReleaseMode   bool   `envconfig:"release_mode"  default:"false"`
+	SkipKeyUpload bool   `envconfig:"skip_key_upload" default:"false"`
+	URIScheme     string `envconfig:"uri_scheme"    default:"http"`
 }
 
 func LoadConfig() (*Config, error) {
