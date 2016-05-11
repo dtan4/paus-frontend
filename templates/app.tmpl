@@ -73,14 +73,8 @@
           {{ if .error }}
           {{ else }}
           <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
-            <div class="form-group">
-              <label for="buildArgKeyInput">Key</label>
-              <input type="text" class="form-control monospace" id="buildArgKeyInput" name="key" placeholder="key">
-            </div>
-            <div class="form-group">
-              <label for="buildArgValueInput">Value</label>
-              <input type="text" class="form-control monospace" id="buildArgValueInput" name="value" placeholder="value">
-            </div>
+            <input type="text" class="form-control monospace" name="key" placeholder="KEY">
+            <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
             <button type="submit" class="btn btn-primary">Add new variable</button>
           </form>
           {{ end }}
@@ -126,14 +120,8 @@
           {{ if .error }}
           {{ else }}
           <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
-            <div class="form-group">
-              <label for="envKeyInput">Key</label>
-              <input type="text" class="form-control monospace" id="envKeyInput" name="key" placeholder="key">
-            </div>
-            <div class="form-group">
-              <label for="envValueInput">Value</label>
-              <input type="text" class="form-control monospace" id="envValueInput" name="value" placeholder="value">
-            </div>
+            <input type="text" class="form-control monospace" name="key" placeholder="KEY">
+            <input type="text" class="form-control monospace" name="value" placeholder="VALUE">
             <button type="submit" class="btn btn-primary">Add new variable</button>
           </form>
           <form class="form-inline" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
