@@ -18,7 +18,7 @@ RUN apk --update add ca-certificates docker && \
 
 WORKDIR /app
 
-COPY bin/paus-frontend-linux_amd64 /app/paus-frontend
+COPY bin/paus-frontend_linux-amd64 /app/paus-frontend
 COPY templates /app/templates
 
 EXPOSE 8080
