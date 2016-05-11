@@ -6,4 +6,4 @@
 !glide.yaml
 !templates/
 !bin/paus-frontend
-!bin/paus-frontend-linux_amd64
+!bin/paus-frontend_linux-amd64
