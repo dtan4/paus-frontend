@@ -18,6 +18,17 @@ func AddBuildArg(etcd *Etcd, username, appName, key, value string) error {
 	return nil
 }
 
+func DeleteBuildArg(etcd *Etcd, username, appName, key string) error {
+	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/build-args/" + key); err != nil {
+		return errors.Wrap(
+			err,
+			fmt.Sprintf("Failed to delete build arg. username: %s, appName: %s, key: %s", username, appName, key),
+		)
+	}
+
+	return nil
+}
+
 func BuildArgs(etcd *Etcd, username, appName string) (*map[string]string, error) {
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/build-args/", true)
 
