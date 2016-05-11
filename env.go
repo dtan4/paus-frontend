@@ -29,6 +29,17 @@ func AddEnvironmentVariable(etcd *Etcd, username, appName, key, value string) er
 	return nil
 }
 
+func DeleteEnvironmentVariable(etcd *Etcd, username, appName, key string) error {
+	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/envs/" + key); err != nil {
+		return errors.Wrap(
+			err,
+			fmt.Sprintf("Failed to delete environment variable. username: %s, appName: %s, key: %s", username, appName, key),
+		)
+	}
+
+	return nil
+}
+
 func EnvironmentVariables(etcd *Etcd, username, appName string) (*map[string]string, error) {
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/envs/", true)
 
