@@ -222,6 +222,29 @@ func main() {
 		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
 	})
 
+	// TODO: DELETE /users/:username/apps/:appName/build-args
+	r.POST("/users/:username/apps/:appName/build-args/delete", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+		key := c.PostForm("key")
+
+		err := DeleteBuildArg(etcd, username, appName, key)
+
+		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": "Failed to delete build arg.",
+			})
+
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+	})
+
 	r.POST("/users/:username/apps/:appName/envs", func(c *gin.Context) {
 		appName := c.Param("appName")
 		username := c.Param("username")
@@ -237,6 +260,31 @@ func main() {
 				"alert":   true,
 				"error":   true,
 				"message": "Failed to add environment variable.",
+			})
+
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+	})
+
+	// TODO: DELETE /users/:username/apps/:appName/envs
+	r.POST("/users/:username/apps/:appName/envs/delete", func(c *gin.Context) {
+		appName := c.Param("appName")
+		username := c.Param("username")
+		key := c.PostForm("key")
+
+		fmt.Println(key)
+
+		err := DeleteEnvironmentVariable(etcd, username, appName, key)
+
+		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
+			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+				"alert":   true,
+				"error":   true,
+				"message": "Failed to detele environment variable.",
 			})
 
 			return

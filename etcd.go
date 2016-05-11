@@ -29,6 +29,16 @@ func NewEtcd(etcdEndpoint string) (*Etcd, error) {
 	return &Etcd{keysAPI}, nil
 }
 
+func (c *Etcd) Delete(key string) error {
+	_, err := c.keysAPI.Delete(context.Background(), key, &client.DeleteOptions{})
+
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Failed to delete etcd item. key: %s", key))
+	}
+
+	return nil
+}
+
 func (c *Etcd) Get(key string) (string, error) {
 	resp, err := c.keysAPI.Get(context.Background(), key, &client.GetOptions{})
 
