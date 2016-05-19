@@ -16,9 +16,12 @@ $ PAUS_BASE_DOMAIN=pausapp.com \
   paus-frontend
 ```
 
-## Environment variables
+## Prerequisites
 
-GitHub OAuth Client ID / Secret can be retrived from [here](https://github.com/settings/applications/new) (need to register new Developer application).
+You need to register new GitHub Developer application from [here](https://github.com/settings/applications/new).
+Authorization callback URL must be `http(s)://<base domain>/oauth/callback`.
+
+## Environment variables
 
 | Key                         | Required | Description                                         | Default                 | Example                                    |
 |-----------------------------|----------|-----------------------------------------------------|-------------------------|--------------------------------------------|
