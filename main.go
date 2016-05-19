@@ -520,7 +520,20 @@ func main() {
 	})
 
 	r.GET("/signin", func(c *gin.Context) {
-		url := oauthConf.AuthCodeURL("hoge", oauth2.AccessTypeOnline)
+		state, err := GenerateRandomString()
+
+		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
+			c.String(http.StatusBadRequest, "Failed to generate state string.", err)
+			return
+		}
+
+		session := sessions.Default(c)
+		session.Set("state", state)
+		session.Save()
+
+		url := oauthConf.AuthCodeURL(state, oauth2.AccessTypeOnline)
 		c.Redirect(http.StatusFound, url)
 	})
 
@@ -533,10 +546,24 @@ func main() {
 	})
 
 	r.GET("/oauth/callback", func(c *gin.Context) {
+		session := sessions.Default(c)
+
+		if session.Get("state") == nil {
+			c.String(http.StatusBadRequest, "State string is not stored in session.")
+			return
+		}
+
+		storedState := session.Get("state").(string)
+		state := c.Query("state")
+
+		if state != storedState {
+			c.String(http.StatusBadRequest, "State string does not match.")
+			return
+		}
+
+		session.Delete("state")
+
 		code := c.Query("code")
-
-		// TODO: compare to stored code in session
-
 		token, err := oauthConf.Exchange(oauth2.NoContext, code)
 
 		if err != nil {
@@ -598,7 +625,6 @@ func main() {
 			return
 		}
 
-		session := sessions.Default(c)
 		session.Set("token", token.AccessToken)
 		session.Save()
 
