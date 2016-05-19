@@ -567,12 +567,14 @@ func main() {
 		token, err := oauthConf.Exchange(oauth2.NoContext, code)
 
 		if err != nil {
-			c.String(http.StatusBadRequest, "Error: %s", err)
+			errors.Fprint(os.Stderr, err)
+
+			c.String(http.StatusBadRequest, "Failed to generate OAuth access token.")
 			return
 		}
 
 		if !token.Valid() {
-			c.String(http.StatusBadRequest, "%v", token)
+			c.String(http.StatusBadRequest, "OAuth access token is invalid.")
 			return
 		}
 
