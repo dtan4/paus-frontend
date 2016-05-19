@@ -15,7 +15,7 @@ func CreateUser(etcd *Etcd, user *github.User) error {
 		return errors.Wrap(err, fmt.Sprintf("Failed to create user. username: %s", username))
 	}
 
-	if err := etcd.Set("/pause/users/"+username+"/avater_url", *user.AvatarURL); err != nil {
+	if err := etcd.Set("/paus/users/"+username+"/avater_url", *user.AvatarURL); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Failed to set avater URL. username: %s", username))
 	}
 
