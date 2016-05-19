@@ -602,7 +602,7 @@ func main() {
 		session.Set("token", token.AccessToken)
 		session.Save()
 
-		c.Redirect(http.StatusFound, "/apps")
+		c.Redirect(http.StatusFound, "/")
 	})
 
 	r.Run()
