@@ -21,9 +21,13 @@
       {{ end }}
 
       <div class="text-center">
+        {{ if .logged_in }}
+        You are now logged in as {{ .name }}
+        {{ else }}
         <a href="/signin">
           <button class="btn btn-success btn-lg"><span class="octicon octicon-mark-github"></span> Sign in with GitHub</button>
         </a>
+        {{ end }}
       </div>
 
       <h3>2. Configure your <code>~/.ssh/config</code></h3>

@@ -5,8 +5,16 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
+	"golang.org/x/oauth2"
+	githuboauth "golang.org/x/oauth2/github"
+)
+
+const (
+	AppName = "paus"
 )
 
 func initialize(config *Config, etcd *Etcd) error {
@@ -55,18 +63,52 @@ func main() {
 		os.Exit(1)
 	}
 
-	r := gin.Default()
+	oauthConf := oauth2.Config{
+		ClientID:     config.GitHubClientID,
+		ClientSecret: config.GitHubClientSecret,
+		Scopes:       []string{"user"},
+		Endpoint:     githuboauth.Endpoint,
+	}
 
+	store := sessions.NewCookieStore([]byte(config.SecretKeyBase))
+
+	r := gin.Default()
+	r.Use(sessions.Sessions(AppName, store))
 	r.Static("/assets", "assets")
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"alert":      false,
-			"error":      false,
-			"message":    "",
-			"baseDomain": config.BaseDomain,
-		})
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.HTML(http.StatusOK, "index.tmpl", gin.H{
+				"alert":      false,
+				"error":      false,
+				"logged_in":  false,
+				"message":    "",
+				"baseDomain": config.BaseDomain,
+			})
+		} else {
+			oauthClient := oauthConf.Client(oauth2.NoContext, &oauth2.Token{AccessToken: token.(string)})
+			client := github.NewClient(oauthClient)
+
+			user, _, err := client.Users.Get("")
+
+			if err != nil {
+				c.String(http.StatusNotFound, "User not found.")
+				return
+			}
+
+			c.HTML(http.StatusOK, "index.tmpl", gin.H{
+				"alert":      false,
+				"error":      false,
+				"logged_in":  true,
+				"message":    "",
+				"name":       user.Name,
+				"baseDomain": config.BaseDomain,
+			})
+		}
 	})
 
 	r.GET("/users/:username", func(c *gin.Context) {
@@ -329,7 +371,32 @@ func main() {
 	})
 
 	r.GET("/signin", func(c *gin.Context) {
-		c.String(http.StatusOK, "hooray!")
+		url := oauthConf.AuthCodeURL("hoge", oauth2.AccessTypeOnline)
+		c.Redirect(http.StatusFound, url)
+	})
+
+	r.GET("/callback", func(c *gin.Context) {
+		code := c.Query("code")
+
+		// TODO: compare to stored code in session
+
+		token, err := oauthConf.Exchange(oauth2.NoContext, code)
+
+		if err != nil {
+			c.String(http.StatusBadRequest, "Error: %s", err)
+			return
+		}
+
+		if !token.Valid() {
+			c.String(http.StatusBadRequest, "%v", token)
+			return
+		}
+
+		session := sessions.Default(c)
+		session.Set("token", token.AccessToken)
+		session.Save()
+
+		c.Redirect(http.StatusFound, "/")
 	})
 
 	r.POST("/submit", func(c *gin.Context) {
