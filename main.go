@@ -106,7 +106,7 @@ func main() {
 		}
 
 		if !UserExists(etcd, username) {
-			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
 			})
@@ -149,7 +149,7 @@ func main() {
 		}
 
 		if !UserExists(etcd, username) {
-			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
 			})
@@ -162,7 +162,7 @@ func main() {
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
 
-			c.HTML(http.StatusInternalServerError, "user.tmpl", gin.H{
+			c.HTML(http.StatusInternalServerError, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": "Failed to list apps.",
 			})
@@ -170,7 +170,7 @@ func main() {
 			return
 		}
 
-		c.HTML(http.StatusOK, "user.tmpl", gin.H{
+		c.HTML(http.StatusOK, "apps.tmpl", gin.H{
 			"error":      false,
 			"apps":       apps,
 			"avater_url": GetAvaterURL(etcd, username),
@@ -237,7 +237,7 @@ func main() {
 		}
 
 		if !UserExists(etcd, username) {
-			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
 			})
@@ -248,7 +248,7 @@ func main() {
 		appName := c.Param("appName")
 
 		if !AppExists(etcd, username, appName) {
-			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("Application %s does not exist.", appName),
 			})
