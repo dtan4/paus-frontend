@@ -66,7 +66,7 @@ func main() {
 	oauthConf := oauth2.Config{
 		ClientID:     config.GitHubClientID,
 		ClientSecret: config.GitHubClientSecret,
-		Scopes:       []string{"user"},
+		Scopes:       []string{"user", "read:public_key"},
 		Endpoint:     githuboauth.Endpoint,
 	}
 
@@ -390,6 +390,48 @@ func main() {
 		if !token.Valid() {
 			c.String(http.StatusBadRequest, "%v", token)
 			return
+		}
+
+		oauthClient := oauthConf.Client(oauth2.NoContext, &oauth2.Token{AccessToken: token.AccessToken})
+		client := github.NewClient(oauthClient)
+
+		user, _, err := client.Users.Get("")
+
+		if err != nil {
+			c.String(http.StatusBadRequest, "Failed to retrive GitHub user profile.")
+		}
+
+		keys, _, err := client.Users.ListKeys("", &github.ListOptions{})
+
+		if err != nil {
+			errors.Fprint(os.Stderr, err)
+
+			c.String(http.StatusBadRequest, "Failed to retrive SSH public keys from GitHub.")
+			return
+		}
+
+		for _, key := range keys {
+			if !config.SkipKeyUpload {
+				_, err := UploadPublicKey(*user.Login, *key.Key)
+
+				if err != nil {
+					errors.Fprint(os.Stderr, err)
+
+					c.String(http.StatusBadRequest, "Failed to register SSH public key.")
+					return
+				}
+			} else {
+				fmt.Printf("User: %s, Key: %s\n", *user.Login, *key.Key)
+			}
+		}
+
+		if !UserExists(etcd, *user.Login) {
+			if err := CreateUser(etcd, *user.Login); err != nil {
+				errors.Fprint(os.Stderr, err)
+
+				c.String(http.StatusBadRequest, "Failed to create user.")
+				return
+			}
 		}
 
 		session := sessions.Default(c)
