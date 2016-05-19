@@ -31,3 +31,5 @@ bin/*
 !bin/.keep
 
 vendor/
+
+/gin-bin

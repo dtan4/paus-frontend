@@ -4,12 +4,19 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
 
-func CreateUser(etcd *Etcd, username string) error {
+func CreateUser(etcd *Etcd, user *github.User) error {
+	username := *user.Login
+
 	if err := etcd.Mkdir("/paus/users/" + username); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Failed to create user. username: %s", username))
+	}
+
+	if err := etcd.Set("/paus/users/"+username+"/avater_url", *user.AvatarURL); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Failed to set avater URL. username: %s", username))
 	}
 
 	if err := etcd.Mkdir("/paus/users/" + username + "/apps"); err != nil {
@@ -17,6 +24,22 @@ func CreateUser(etcd *Etcd, username string) error {
 	}
 
 	return nil
+}
+
+func GetAvaterURL(etcd *Etcd, username string) string {
+	avaterURL, _ := etcd.Get("/paus/users/" + username + "/avater_url")
+
+	return avaterURL
+}
+
+func GetLoginUser(etcd *Etcd, accessToken string) string {
+	username, _ := etcd.Get("/paus/sessions/" + accessToken)
+
+	return username
+}
+
+func RegisterAccessToken(etcd *Etcd, username, accessToken string) error {
+	return etcd.Set("/paus/sessions/"+accessToken, username)
 }
 
 func UserExists(etcd *Etcd, username string) bool {

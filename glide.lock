@@ -1,12 +1,23 @@
-hash: 8bcbd73a37fb815fbdc4f06d280da2074179f7d8227efc4be67cfe199f5f7fcd
-updated: 2016-05-01T23:50:08.912212047+09:00
+hash: a32bf6edd33aeef9ebb2380e22156568e3f6df6d69e6065c87147899392f9bce
+updated: 2016-05-19T17:50:33.35668249+09:00
 imports:
+- name: github.com/boj/redistore
+  version: fc113767cd6b051980f260d6dbe84b2740c46ab0
 - name: github.com/coreos/etcd
   version: 29853967681e161e756a6221b681743dc053604c
   subpackages:
   - client
   - pkg/pathutil
   - pkg/types
+- name: github.com/garyburd/redigo
+  version: 8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13
+  subpackages:
+  - redis
+  - internal
+- name: github.com/gin-gonic/contrib
+  version: 120df5cf76f14a246b04f0e35d5ee029b14d8dfb
+  subpackages:
+  - sessions
 - name: github.com/gin-gonic/gin
   version: 27f912f5b2c8ee7dd7655d479dee2fc4d41d32d7
   subpackages:
@@ -16,6 +27,20 @@ imports:
   version: 2402d76f3d41f928c7902a765dfc872356dd3aad
   subpackages:
   - proto
+- name: github.com/google/go-github
+  version: 7ec4e45f77474b3a7b7d9b7ef233a0cc8339ddf3
+  subpackages:
+  - github
+- name: github.com/google/go-querystring
+  version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
+  subpackages:
+  - query
+- name: github.com/gorilla/context
+  version: a8d44e7d8e4d532b6a27a02dd82abb31cc1b01bd
+- name: github.com/gorilla/securecookie
+  version: 667fe4e3466a040b780561fe9b51a83a3753eefc
+- name: github.com/gorilla/sessions
+  version: a4e6dd28f9e9274729417506b9bd0a6c3edb91ce
 - name: github.com/kelseyhightower/envconfig
   version: cea086319492c3940683ea5e122aa5de70a33923
 - name: github.com/manucorporat/sse
@@ -30,6 +55,21 @@ imports:
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
   - context
+- name: golang.org/x/oauth2
+  version: e86e2718db89775a4604abc10a5d3a5672e7336e
+  subpackages:
+  - github
+  - internal
+- name: google.golang.org/appengine
+  version: e234e71924d4aa52444bc76f2f831f13fa1eca60
+  subpackages:
+  - urlfetch
+  - internal
+  - internal/urlfetch
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/remote_api
 - name: gopkg.in/go-playground/validator.v8
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
 devImports: []
