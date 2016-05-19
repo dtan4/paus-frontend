@@ -87,26 +87,46 @@ func main() {
 				"message":    "",
 				"baseDomain": config.BaseDomain,
 			})
-		} else {
-			oauthClient := oauthConf.Client(oauth2.NoContext, &oauth2.Token{AccessToken: token.(string)})
-			client := github.NewClient(oauthClient)
 
-			user, _, err := client.Users.Get("")
+			return
+		}
 
-			if err != nil {
-				c.String(http.StatusNotFound, "User not found.")
-				return
-			}
+		username := GetLoginUser(etcd, token.(string))
 
+		if username == "" {
 			c.HTML(http.StatusOK, "index.tmpl", gin.H{
 				"alert":      false,
 				"error":      false,
-				"logged_in":  true,
+				"logged_in":  false,
 				"message":    "",
-				"name":       user.Name,
 				"baseDomain": config.BaseDomain,
 			})
+
+			return
 		}
+
+		if !UserExists(etcd, username) {
+			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
+				"error":   true,
+				"message": fmt.Sprintf("User %s does not exist.", username),
+			})
+
+			return
+		}
+
+		if err != nil {
+			c.String(http.StatusNotFound, "User not found.")
+			return
+		}
+
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"alert":      false,
+			"error":      false,
+			"logged_in":  true,
+			"message":    "",
+			"name":       username,
+			"baseDomain": config.BaseDomain,
+		})
 	})
 
 	r.GET("/apps", func(c *gin.Context) {
