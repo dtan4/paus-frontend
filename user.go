@@ -26,6 +26,12 @@ func CreateUser(etcd *Etcd, user *github.User) error {
 	return nil
 }
 
+func GetAvaterURL(etcd *Etcd, username string) string {
+	avaterURL, _ := etcd.Get("/paus/users/" + username + "/avater_url")
+
+	return avaterURL
+}
+
 func GetLoginUser(etcd *Etcd, accessToken string) string {
 	username, _ := etcd.Get("/paus/sessions/" + accessToken)
 

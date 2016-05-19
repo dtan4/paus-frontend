@@ -121,10 +121,11 @@ func main() {
 
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"alert":      false,
+			"avater_url": GetAvaterURL(etcd, username),
 			"error":      false,
 			"logged_in":  true,
 			"message":    "",
-			"name":       username,
+			"username":   username,
 			"baseDomain": config.BaseDomain,
 		})
 	})
@@ -170,9 +171,11 @@ func main() {
 		}
 
 		c.HTML(http.StatusOK, "user.tmpl", gin.H{
-			"error": false,
-			"user":  username,
-			"apps":  apps,
+			"error":      false,
+			"apps":       apps,
+			"avater_url": GetAvaterURL(etcd, username),
+			"logged_in":  true,
+			"username":   username,
 		})
 	})
 
@@ -297,13 +300,15 @@ func main() {
 		}
 
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
-			"error":     false,
-			"user":      username,
-			"app":       appName,
-			"latestURL": latestURL,
-			"urls":      urls,
-			"buildArgs": buildArgs,
-			"envs":      envs,
+			"error":      false,
+			"app":        appName,
+			"avater_url": GetAvaterURL(etcd, username),
+			"buildArgs":  buildArgs,
+			"envs":       envs,
+			"latestURL":  latestURL,
+			"logged_in":  true,
+			"urls":       urls,
+			"username":   username,
 		})
 	})
 

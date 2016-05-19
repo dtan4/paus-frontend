@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="assets/octicons.css">
   </head>
   <body>
+    {{ template "navbar" . }}
 
     <div class="container">
       <div class="jumbotron">
         <h1>Paus</h1>
 
         {{ if .logged_in }}
-        <p>You are now logged in as {{ .name }}.</p>
+        <p>You are now logged in as {{ .username }}.</p>
         {{ else }}
         <p>Docker Compose PaaS</p>
         <div class="text-center">

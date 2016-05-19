@@ -11,8 +11,10 @@
     </style>
   </head>
   <body>
+    {{ template "navbar" . }}
+
     <div class="container">
-      <h1>{{ .user }}/{{ .app }}</h1>
+      <h1>{{ .username }}/{{ .app }}</h1>
       {{ if .error }}
       <div class="alert alert-danger" role="alert">
         {{ .message }}
