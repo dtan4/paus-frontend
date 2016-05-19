@@ -524,7 +524,7 @@ func main() {
 		c.Redirect(http.StatusFound, url)
 	})
 
-	r.GET("/callback", func(c *gin.Context) {
+	r.GET("/oauth/callback", func(c *gin.Context) {
 		code := c.Query("code")
 
 		// TODO: compare to stored code in session
