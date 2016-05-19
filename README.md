@@ -9,16 +9,24 @@ Web frontend of [Paus](https://github.com/dtan4/paus)
 ## Usage
 
 ``` bash
-$ PAUS_BASE_DOMAIN=pausapp.com PAUS_ETCD_ENDPOINT=http://127.0.0.1:2379 paus-frontend
+$ PAUS_BASE_DOMAIN=pausapp.com \
+  PAUS_ETCD_ENDPOINT=http://127.0.0.1:2379 \
+  PAUS_GITHUB_CLIENT_ID=a058xxxxxxxxxxxxxxxx \
+  PAUS_GITHUB_CLIENT_SECRET=3d68xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  paus-frontend
 ```
 
 ## Environment variables
 
-| Key                  | Required | Description                                    | Default                 | Example                 |
-|----------------------|----------|------------------------------------------------|-------------------------|-------------------------|
-| `PAUS_BASE_DOMAIN`   | Required | Base domain for application URL                |                         | `pausapp.com`           |
-| `PAUS_ETCD_ENDPOINT` |          | Endpoint of etcd cluster                       | `http://127.0.0.1:2379` | `http://172.17.8.101:2379` |
-| `PAUS_URI_SCHEME`    |          | URI scheme of application URL (`http`&#124;`https`) | `http`                    | `http`                  |
+GitHub OAuth Client ID / Secret can be retrived from [here](https://github.com/settings/applications/new) (need to register new Developer application).
+
+| Key                         | Required | Description                                         | Default                 | Example                                    |
+|-----------------------------|----------|-----------------------------------------------------|-------------------------|--------------------------------------------|
+| `PAUS_BASE_DOMAIN`          | Required | Base domain of application URL                      |                         | `pausapp.com`                              |
+| `PAUS_ETCD_ENDPOINT`        |          | Endpoint of etcd cluster                            | `http://127.0.0.1:2379` | `http://172.17.8.101:2379`                 |
+| `PAUS_GITHUB_CLIENT_ID`     | Required | GitHub OAuth Client ID                              |                         | `a058xxxxxxxxxxxxxxxx`                     |
+| `PAUS_GITHUB_CLIENT_SECRET` | Required | GitHub OAuth Client Secret                          |                         | `3d68xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
+| `PAUS_URI_SCHEME`           |          | URI scheme of application URL (`http`&#124;`https`) | `http`                  | `http`                                     |
 
 ## Development
 
