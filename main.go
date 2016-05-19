@@ -37,6 +37,16 @@ func initialize(config *Config, etcd *Etcd) error {
 	return nil
 }
 
+func currentLoginUser(etcd *Etcd, session sessions.Session) string {
+	token := session.Get("token")
+
+	if token == nil {
+		return ""
+	}
+
+	return GetLoginUser(etcd, token.(string))
+}
+
 func main() {
 	config, err := LoadConfig()
 
@@ -77,21 +87,7 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.HTML(http.StatusOK, "index.tmpl", gin.H{
-				"alert":      false,
-				"error":      false,
-				"logged_in":  false,
-				"message":    "",
-				"baseDomain": config.BaseDomain,
-			})
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.HTML(http.StatusOK, "index.tmpl", gin.H{
@@ -132,15 +128,7 @@ func main() {
 
 	r.GET("/apps", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
@@ -181,15 +169,7 @@ func main() {
 
 	r.POST("/apps", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
@@ -220,15 +200,7 @@ func main() {
 		var latestURL string
 
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
@@ -314,15 +286,7 @@ func main() {
 
 	r.POST("/apps/:appName/build-args", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
@@ -354,15 +318,7 @@ func main() {
 	// TODO: DELETE /apps/:appName/build-args
 	r.POST("/apps/:appName/build-args/delete", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
@@ -392,15 +348,7 @@ func main() {
 
 	r.POST("/apps/:appName/envs", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
@@ -432,15 +380,7 @@ func main() {
 	// TODO: DELETE /apps/:appName/envs
 	r.POST("/apps/:appName/envs/delete", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
@@ -472,15 +412,7 @@ func main() {
 
 	r.POST("/apps/:appName/envs/upload", func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get("token")
-
-		if token == nil {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		username := GetLoginUser(etcd, token.(string))
+		username := currentLoginUser(etcd, session)
 
 		if username == "" {
 			c.Redirect(http.StatusFound, "/")
