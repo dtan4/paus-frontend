@@ -12,7 +12,7 @@
   </head>
   <body>
     <div class="container">
-      <h1><a href="/users/{{ .user }}">{{ .user }}</a>/{{ .app }}</h1>
+      <h1>{{ .user }}/{{ .app }}</h1>
       {{ if .error }}
       <div class="alert alert-danger" role="alert">
         {{ .message }}
@@ -51,7 +51,7 @@
             <tbody>
               {{ range $key, $value := .buildArgs }}
               <tr>
-                <form method="POST" action="/users/{{ $.user }}/apps/{{ $.app }}/build-args/delete">
+                <form method="POST" action="/apps/{{ $.app }}/build-args/delete">
                   <input type="hidden" name="key" value="{{ $key }}">
                   <td>
                     <input type="text" class="form-control monospace" value="{{ $key }}" disabled>
@@ -66,7 +66,7 @@
               </tr>
               {{ end }}
               <tr>
-                <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/build-args">
+                <form class="form-inline" method="POST" action="/apps/{{ .app }}/build-args">
                   <td>
                     <input type="text" class="form-control monospace" name="key" placeholder="KEY">
                   </td>
@@ -101,7 +101,7 @@
             <tbody>
               {{ range $key, $value := .envs }}
               <tr>
-                <form method="POST" action="/users/{{ $.user }}/apps/{{ $.app }}/envs/delete">
+                <form method="POST" action="/apps/{{ $.app }}/envs/delete">
                   <input type="hidden" name="key" value="{{ $key }}">
                   <td>
                     <input type="text" class="form-control monospace" value="{{ $key }}" disabled>
@@ -116,7 +116,7 @@
               </tr>
               {{ end }}
               <tr>
-                <form class="form-inline" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs">
+                <form class="form-inline" method="POST" action="/apps/{{ .app }}/envs">
                   <td>
                     <input type="text" class="form-control monospace" name="key" placeholder="KEY">
                   </td>
@@ -135,7 +135,7 @@
         <div class="panel-footer">
           {{ if .error }}
           {{ else }}
-          <form class="form-inline text-right" enctype="multipart/form-data" method="POST" action="/users/{{ .user }}/apps/{{ .app }}/envs/upload">
+          <form class="form-inline text-right" enctype="multipart/form-data" method="POST" action="/apps/{{ .app }}/envs/upload">
             <div class="form-group">
               <input type="file" id="dotenvInput" name="dotenv">
             </div>

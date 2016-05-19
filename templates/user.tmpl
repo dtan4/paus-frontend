@@ -19,14 +19,14 @@
           </div>
           {{ else }}
           <div class="list-group">
-            {{ range .apps }}<a class="list-group-item" href="/users/{{ $.user }}/apps/{{ . }}">{{ . }}</a>{{ else }}No application found{{ end }}
+            {{ range .apps }}<a class="list-group-item" href="/apps/{{ . }}">{{ . }}</a>{{ else }}No application found{{ end }}
           </div>
           {{ end }}
         </div>
         <div class="panel-footer">
           {{ if .error }}
           {{ else }}
-          <form class="form-inline" method="POST" action="/users/{{ .user }}/apps">
+          <form class="form-inline" method="POST" action="/apps">
             <div class="form-group">
               <input type="text" class="form-control" id="appNameInput" name="appName" placeholder="Application name">
             </div>

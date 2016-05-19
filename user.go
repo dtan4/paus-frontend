@@ -19,6 +19,16 @@ func CreateUser(etcd *Etcd, username string) error {
 	return nil
 }
 
+func GetLoginUser(etcd *Etcd, accessToken string) string {
+	username, _ := etcd.Get("/paus/sessions/" + accessToken)
+
+	return username
+}
+
+func RegisterAccessToken(etcd *Etcd, username, accessToken string) error {
+	return etcd.Set("/paus/sessions/"+accessToken, username)
+}
+
 func UserExists(etcd *Etcd, username string) bool {
 	return etcd.HasKey("/paus/users/" + username)
 }

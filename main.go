@@ -111,8 +111,23 @@ func main() {
 		}
 	})
 
-	r.GET("/users/:username", func(c *gin.Context) {
-		username := c.Param("username")
+	r.GET("/apps", func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
 
 		if !UserExists(etcd, username) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
@@ -143,8 +158,24 @@ func main() {
 		})
 	})
 
-	r.POST("/users/:username/apps", func(c *gin.Context) {
-		username := c.Param("username")
+	r.POST("/apps", func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
 		appName := c.PostForm("appName")
 
 		err := CreateApp(etcd, username, appName)
@@ -161,13 +192,28 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
 	})
 
-	r.GET("/users/:username/apps/:appName", func(c *gin.Context) {
+	r.GET("/apps/:appName", func(c *gin.Context) {
 		var latestURL string
 
-		username := c.Param("username")
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
 
 		if !UserExists(etcd, username) {
 			c.HTML(http.StatusNotFound, "user.tmpl", gin.H{
@@ -243,9 +289,25 @@ func main() {
 		})
 	})
 
-	r.POST("/users/:username/apps/:appName/build-args", func(c *gin.Context) {
+	r.POST("/apps/:appName/build-args", func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
 		appName := c.Param("appName")
-		username := c.Param("username")
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
@@ -263,13 +325,29 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
 	})
 
-	// TODO: DELETE /users/:username/apps/:appName/build-args
-	r.POST("/users/:username/apps/:appName/build-args/delete", func(c *gin.Context) {
+	// TODO: DELETE /apps/:appName/build-args
+	r.POST("/apps/:appName/build-args/delete", func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
 		appName := c.Param("appName")
-		username := c.Param("username")
 		key := c.PostForm("key")
 
 		err := DeleteBuildArg(etcd, username, appName, key)
@@ -286,12 +364,28 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
 	})
 
-	r.POST("/users/:username/apps/:appName/envs", func(c *gin.Context) {
+	r.POST("/apps/:appName/envs", func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
 		appName := c.Param("appName")
-		username := c.Param("username")
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
@@ -309,13 +403,29 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
 	})
 
-	// TODO: DELETE /users/:username/apps/:appName/envs
-	r.POST("/users/:username/apps/:appName/envs/delete", func(c *gin.Context) {
+	// TODO: DELETE /apps/:appName/envs
+	r.POST("/apps/:appName/envs/delete", func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
 		appName := c.Param("appName")
-		username := c.Param("username")
 		key := c.PostForm("key")
 
 		fmt.Println(key)
@@ -334,12 +444,28 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
 	})
 
-	r.POST("/users/:username/apps/:appName/envs/upload", func(c *gin.Context) {
+	r.POST("/apps/:appName/envs/upload", func(c *gin.Context) {
+		session := sessions.Default(c)
+		token := session.Get("token")
+
+		if token == nil {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
+		username := GetLoginUser(etcd, token.(string))
+
+		if username == "" {
+			c.Redirect(http.StatusFound, "/")
+
+			return
+		}
+
 		appName := c.Param("appName")
-		username := c.Param("username")
 
 		dotenvFile, _, err := c.Request.FormFile("dotenv")
 
@@ -367,7 +493,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
 	})
 
 	r.GET("/signin", func(c *gin.Context) {
@@ -434,11 +560,18 @@ func main() {
 			}
 		}
 
+		if err := RegisterAccessToken(etcd, *user.Login, token.AccessToken); err != nil {
+			errors.Fprint(os.Stderr, err)
+
+			c.String(http.StatusBadRequest, "Failed to register access token.")
+			return
+		}
+
 		session := sessions.Default(c)
 		session.Set("token", token.AccessToken)
 		session.Save()
 
-		c.Redirect(http.StatusFound, "/")
+		c.Redirect(http.StatusFound, "/apps")
 	})
 
 	r.POST("/submit", func(c *gin.Context) {
