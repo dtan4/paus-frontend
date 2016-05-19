@@ -213,7 +213,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
+		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
 	})
 
 	r.GET("/apps/:appName", func(c *gin.Context) {
@@ -348,7 +348,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
+		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
 	})
 
 	// TODO: DELETE /apps/:appName/build-args
@@ -387,7 +387,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
+		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
 	})
 
 	r.POST("/apps/:appName/envs", func(c *gin.Context) {
@@ -426,7 +426,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
+		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
 	})
 
 	// TODO: DELETE /apps/:appName/envs
@@ -467,7 +467,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
+		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
 	})
 
 	r.POST("/apps/:appName/envs/upload", func(c *gin.Context) {
@@ -516,7 +516,7 @@ func main() {
 			return
 		}
 
-		c.Redirect(http.StatusMovedPermanently, "/apps/"+appName)
+		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
 	})
 
 	r.GET("/signin", func(c *gin.Context) {
@@ -534,7 +534,7 @@ func main() {
 		session.Save()
 
 		url := oauthConf.AuthCodeURL(state, oauth2.AccessTypeOnline)
-		c.Redirect(http.StatusFound, url)
+		c.Redirect(http.StatusSeeOther, url)
 	})
 
 	r.GET("/signout", func(c *gin.Context) {
@@ -542,7 +542,7 @@ func main() {
 		session.Delete("token")
 		session.Save()
 
-		c.Redirect(http.StatusFound, "/")
+		c.Redirect(http.StatusSeeOther, "/")
 	})
 
 	r.GET("/oauth/callback", func(c *gin.Context) {
@@ -557,7 +557,7 @@ func main() {
 		state := c.Query("state")
 
 		if state != storedState {
-			c.String(http.StatusBadRequest, "State string does not match.")
+			c.String(http.StatusUnauthorized, "State string does not match.")
 			return
 		}
 
@@ -630,7 +630,7 @@ func main() {
 		session.Set("token", token.AccessToken)
 		session.Save()
 
-		c.Redirect(http.StatusFound, "/")
+		c.Redirect(http.StatusSeeOther, "/")
 	})
 
 	r.Run()
