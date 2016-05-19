@@ -34,12 +34,14 @@ Host paus
   Port 2222
   IdentityFile ~/.ssh/id_rsa</pre>
 
-      <h3>3. Add remote repository</h3>
+      <h3>3. Create application from <a href="/apps">Apps</a> page</h3>
+
+      <h3>4. Add remote repository</h3>
 
       <pre>
 $ git remote add paus git@paus:username/repository</pre>
 
-      <h3>4. Deploy</h3>
+      <h3>5. Deploy</h3>
 
       <pre>
 $ git push paus master</pre>
@@ -56,7 +58,7 @@ remote: Creating usernamerepository3432b23_web_1
 To git@{{ .baseDomain }}:username/repository
 2ff821c..3432b23  master -> master</pre>
 
-      <h3>5. Open browser!</h3>
+      <h3>6. Open browser!</h3>
 
       <pre>$ open http://username.{{ .baseDomain }}/</pre>
     </div>
