@@ -1,12 +1,19 @@
 hash: a32bf6edd33aeef9ebb2380e22156568e3f6df6d69e6065c87147899392f9bce
-updated: 2016-05-19T14:20:41.078228174+09:00
+updated: 2016-05-19T17:50:33.35668249+09:00
 imports:
+- name: github.com/boj/redistore
+  version: fc113767cd6b051980f260d6dbe84b2740c46ab0
 - name: github.com/coreos/etcd
   version: 29853967681e161e756a6221b681743dc053604c
   subpackages:
   - client
   - pkg/pathutil
   - pkg/types
+- name: github.com/garyburd/redigo
+  version: 8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13
+  subpackages:
+  - redis
+  - internal
 - name: github.com/gin-gonic/contrib
   version: 120df5cf76f14a246b04f0e35d5ee029b14d8dfb
   subpackages:
@@ -24,6 +31,16 @@ imports:
   version: 7ec4e45f77474b3a7b7d9b7ef233a0cc8339ddf3
   subpackages:
   - github
+- name: github.com/google/go-querystring
+  version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
+  subpackages:
+  - query
+- name: github.com/gorilla/context
+  version: a8d44e7d8e4d532b6a27a02dd82abb31cc1b01bd
+- name: github.com/gorilla/securecookie
+  version: 667fe4e3466a040b780561fe9b51a83a3753eefc
+- name: github.com/gorilla/sessions
+  version: a4e6dd28f9e9274729417506b9bd0a6c3edb91ce
 - name: github.com/kelseyhightower/envconfig
   version: cea086319492c3940683ea5e122aa5de70a33923
 - name: github.com/manucorporat/sse
