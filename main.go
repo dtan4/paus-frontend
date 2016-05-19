@@ -524,6 +524,14 @@ func main() {
 		c.Redirect(http.StatusFound, url)
 	})
 
+	r.GET("/signout", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Delete("token")
+		session.Save()
+
+		c.Redirect(http.StatusFound, "/")
+	})
+
 	r.GET("/oauth/callback", func(c *gin.Context) {
 		code := c.Query("code")
 
