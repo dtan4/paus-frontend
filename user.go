@@ -4,12 +4,19 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
 
-func CreateUser(etcd *Etcd, username string) error {
+func CreateUser(etcd *Etcd, user *github.User) error {
+	username := *user.Login
+
 	if err := etcd.Mkdir("/paus/users/" + username); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Failed to create user. username: %s", username))
+	}
+
+	if err := etcd.Set("/pause/users/"+username+"/avater_url", *user.AvatarURL); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Failed to set avater URL. username: %s", username))
 	}
 
 	if err := etcd.Mkdir("/paus/users/" + username + "/apps"); err != nil {

@@ -552,7 +552,7 @@ func main() {
 		}
 
 		if !UserExists(etcd, *user.Login) {
-			if err := CreateUser(etcd, *user.Login); err != nil {
+			if err := CreateUser(etcd, user); err != nil {
 				errors.Fprint(os.Stderr, err)
 
 				c.String(http.StatusBadRequest, "Failed to create user.")
