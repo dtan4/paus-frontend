@@ -56,6 +56,8 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	r.Static("/assets", "assets")
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/", func(c *gin.Context) {
@@ -324,6 +326,10 @@ func main() {
 		}
 
 		c.Redirect(http.StatusMovedPermanently, "/users/"+username+"/apps/"+appName)
+	})
+
+	r.GET("/signin", func(c *gin.Context) {
+		c.String(http.StatusOK, "hooray!")
 	})
 
 	r.POST("/submit", func(c *gin.Context) {

@@ -4,6 +4,7 @@
     <title>Paus</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/octicons.css">
   </head>
   <body>
     <a href="https://github.com/dtan4/paus"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
@@ -11,7 +12,7 @@
     <div class="container">
       <h1>Paus</h1>
 
-      <h3>1. Upload username and SSH public key</h3>
+      <h3>1. Sign in with your GitHub account</h3>
 
       {{ if .alert }}
       <div class="alert {{ if .error }}alert-danger{{ else }}alert-success{{ end }}" role="alert">
@@ -19,29 +20,11 @@
       </div>
       {{ end }}
 
-      <form class="form-horizontal" method="POST" action="/submit">
-        <div class="form-group">
-          <label class="control-label col-sm-2" for="usernameInput">Username</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" id="usernameInput" name="username" placeholder="username">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="control-label col-sm-2" for="pubkeyInput">
-            SSH public key
-            <p class="help-block" style="font-size: 9px;">cat ~/.ssh/id_rsa.pub | pbcopy</p>
-          </label>
-          <div class="col-sm-10">
-            <textarea class="form-control" rows="3" id="pubkeyInput" name="pubKey" placeholder="SSH public key"></textarea>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </div>
-      </form>
+      <div class="text-center">
+        <a href="/signin">
+          <button class="btn btn-success btn-lg"><span class="octicon octicon-mark-github"></span> Sign in with GitHub</button>
+        </a>
+      </div>
 
       <h3>2. Configure your <code>~/.ssh/config</code></h3>
 
