@@ -38,8 +38,6 @@ func initialize(config *Config, etcd *Etcd) error {
 }
 
 func main() {
-	var out string
-
 	config, err := LoadConfig()
 
 	if err != nil {
