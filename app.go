@@ -29,7 +29,7 @@ func Apps(etcd *Etcd, username string) ([]string, error) {
 }
 
 func AppURL(uriScheme, identifier, baseDomain string) string {
-	return uriScheme + "://" + identifier + "." + baseDomain
+	return strings.ToLower(uriScheme + "://" + identifier + "." + baseDomain)
 }
 
 func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
