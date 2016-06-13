@@ -48,6 +48,8 @@ func currentLoginUser(etcd *Etcd, session sessions.Session) string {
 }
 
 func main() {
+	printVersion()
+
 	config, err := LoadConfig()
 
 	if err != nil {
