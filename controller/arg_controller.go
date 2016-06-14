@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/arg"
-	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -15,7 +15,7 @@ type ArgController struct {
 	*ApplicationController
 }
 
-func NewArgController(config *server.Config, etcd *store.Etcd) *ArgController {
+func NewArgController(config *config.Config, etcd *store.Etcd) *ArgController {
 	return &ArgController{NewApplicationController(config, etcd)}
 }
 

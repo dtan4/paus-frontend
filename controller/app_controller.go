@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/app"
 	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/user"
-	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -19,7 +19,7 @@ type AppController struct {
 	*ApplicationController
 }
 
-func NewAppController(config *server.Config, etcd *store.Etcd) *AppController {
+func NewAppController(config *config.Config, etcd *store.Etcd) *AppController {
 	return &AppController{NewApplicationController(config, etcd)}
 }
 

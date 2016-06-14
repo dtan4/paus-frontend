@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/user"
-	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ type RootController struct {
 	*ApplicationController
 }
 
-func NewRootController(config *server.Config, etcd *store.Etcd) *RootController {
+func NewRootController(config *config.Config, etcd *store.Etcd) *RootController {
 	return &RootController{NewApplicationController(config, etcd)}
 }
 

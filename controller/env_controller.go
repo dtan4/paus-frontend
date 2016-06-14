@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/env"
-	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -16,7 +16,7 @@ type EnvController struct {
 	*ApplicationController
 }
 
-func NewEnvController(config *server.Config, etcd *store.Etcd) *EnvController {
+func NewEnvController(config *config.Config, etcd *store.Etcd) *EnvController {
 	return &EnvController{NewApplicationController(config, etcd)}
 }
 

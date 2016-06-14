@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
+	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/controller"
-	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ const (
 func main() {
 	printVersion()
 
-	config, err := server.LoadConfig()
+	config, err := config.LoadConfig()
 
 	if err != nil {
 		errors.Fprint(os.Stderr, err)

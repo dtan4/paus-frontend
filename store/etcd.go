@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/coreos/etcd/client"
-	"github.com/dtan4/paus-frontend/server"
+	"github.com/dtan4/paus-frontend/config"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
@@ -56,7 +56,7 @@ func (c *Etcd) HasKey(key string) bool {
 	return err == nil
 }
 
-func (c *Etcd) Init(config *server.Config) error {
+func (c *Etcd) Init(config *config.Config) error {
 	if !c.HasKey("/paus") {
 		if err := c.Mkdir("/paus"); err != nil {
 			return errors.Wrap(err, "Failed to create root directory.")

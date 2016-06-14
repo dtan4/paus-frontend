@@ -1,4 +1,4 @@
-package server
+package config
 
 import (
 	"github.com/dtan4/paus-frontend/util"
