@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/dtan4/paus-frontend/controller"
-	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
@@ -112,46 +111,7 @@ func main() {
 	// TODO: DELETE /apps/:appName/envs
 	r.POST("/apps/:appName/envs/delete", envController.Delete)
 
-	r.POST("/apps/:appName/envs/upload", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		appName := c.Param("appName")
-
-		dotenvFile, _, err := c.Request.FormFile("dotenv")
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": "Failed to upload dotenv.",
-			})
-
-			return
-		}
-
-		if err = env.LoadDotenv(etcd, username, appName, dotenvFile); err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": "Failed to load dotenv.",
-			})
-
-			return
-		}
-
-		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
-	})
+	r.POST("/apps/:appName/envs/upload", envController.Upload)
 
 	r.GET("/update-keys", func(c *gin.Context) {
 		session := sessions.Default(c)
