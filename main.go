@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
@@ -247,7 +248,7 @@ func main() {
 			return
 		}
 
-		envs, err := EnvironmentVariables(etcd, username, appName)
+		envs, err := env.List(etcd, username, appName)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -366,7 +367,7 @@ func main() {
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
-		err := AddEnvironmentVariable(etcd, username, appName, key, value)
+		err := env.Create(etcd, username, appName, key, value)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -399,7 +400,7 @@ func main() {
 
 		fmt.Println(key)
 
-		err := DeleteEnvironmentVariable(etcd, username, appName, key)
+		err := env.Delete(etcd, username, appName, key)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -442,7 +443,7 @@ func main() {
 			return
 		}
 
-		if err = LoadDotenv(etcd, username, appName, dotenvFile); err != nil {
+		if err = env.LoadDotenv(etcd, username, appName, dotenvFile); err != nil {
 			errors.Fprint(os.Stderr, err)
 
 			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{

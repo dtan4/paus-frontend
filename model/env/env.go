@@ -1,4 +1,4 @@
-package main
+package env
 
 import (
 	"bufio"
@@ -19,7 +19,7 @@ var (
 	DotenvLine = regexp.MustCompile(DotenvLineRegexp)
 )
 
-func AddEnvironmentVariable(etcd *store.Etcd, username, appName, key, value string) error {
+func Create(etcd *store.Etcd, username, appName, key, value string) error {
 	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value); err != nil {
 		return errors.Wrap(
 			err,
@@ -30,7 +30,7 @@ func AddEnvironmentVariable(etcd *store.Etcd, username, appName, key, value stri
 	return nil
 }
 
-func DeleteEnvironmentVariable(etcd *store.Etcd, username, appName, key string) error {
+func Delete(etcd *store.Etcd, username, appName, key string) error {
 	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/envs/" + key); err != nil {
 		return errors.Wrap(
 			err,
@@ -41,7 +41,7 @@ func DeleteEnvironmentVariable(etcd *store.Etcd, username, appName, key string) 
 	return nil
 }
 
-func EnvironmentVariables(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
+func List(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/envs/", true)
 
 	if err != nil {
@@ -71,7 +71,7 @@ func LoadDotenv(etcd *store.Etcd, username, appName string, dotenvFile io.Reader
 
 		key, value := matchResult[1], matchResult[2]
 
-		if err := AddEnvironmentVariable(etcd, username, appName, key, value); err != nil {
+		if err := Create(etcd, username, appName, key, value); err != nil {
 			return errors.Wrap(err, "Failed to load dotenv.")
 		}
 	}
