@@ -9,7 +9,6 @@ import (
 	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
-	"github.com/dtan4/paus-frontend/util"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/github"
@@ -96,6 +95,7 @@ func main() {
 	appController := controller.NewAppController(config, etcd)
 	argController := controller.NewArgController(config, etcd)
 	envController := controller.NewEnvController(config, etcd)
+	sessionController := controller.NewSessionController(config, etcd, oauthConf)
 
 	r.GET("/", rootController.Index)
 	r.GET("/apps", appController.Index)
@@ -160,31 +160,8 @@ func main() {
 		c.Redirect(http.StatusSeeOther, "/")
 	})
 
-	r.GET("/signin", func(c *gin.Context) {
-		state, err := util.GenerateRandomString()
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.String(http.StatusBadRequest, "Failed to generate state string.", err)
-			return
-		}
-
-		session := sessions.Default(c)
-		session.Set("state", state)
-		session.Save()
-
-		url := oauthConf.AuthCodeURL(state, oauth2.AccessTypeOnline)
-		c.Redirect(http.StatusSeeOther, url)
-	})
-
-	r.GET("/signout", func(c *gin.Context) {
-		session := sessions.Default(c)
-		session.Delete("token")
-		session.Save()
-
-		c.Redirect(http.StatusSeeOther, "/")
-	})
+	r.GET("/signin", sessionController.SignIn)
+	r.GET("/signout", sessionController.SignOut)
 
 	r.GET("/oauth/callback", func(c *gin.Context) {
 		session := sessions.Default(c)
