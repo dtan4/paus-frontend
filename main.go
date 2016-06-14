@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/dtan4/paus-frontend/controller"
-	"github.com/dtan4/paus-frontend/model/app"
 	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/user"
@@ -101,94 +100,7 @@ func main() {
 	r.GET("/", rootController.Index)
 	r.GET("/apps", appController.Index)
 	r.POST("/apps", appController.New)
-
-	r.GET("/apps/:appName", func(c *gin.Context) {
-		var latestURL string
-
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		if !user.Exists(etcd, username) {
-			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
-				"error":   true,
-				"message": fmt.Sprintf("User %s does not exist.", username),
-			})
-
-			return
-		}
-
-		appName := c.Param("appName")
-
-		if !app.Exists(etcd, username, appName) {
-			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
-				"error":   true,
-				"message": fmt.Sprintf("Application %s does not exist.", appName),
-			})
-
-			return
-		}
-
-		urls, err := app.URLs(etcd, config.URIScheme, config.BaseDomain, username, appName)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"error":   true,
-				"message": "Failed to list app URLs.",
-			})
-
-			return
-		}
-
-		envs, err := env.List(etcd, username, appName)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"error":   true,
-				"message": "Failed to list environment variables.",
-			})
-
-			return
-		}
-
-		buildArgs, err := arg.List(etcd, username, appName)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"error":   true,
-				"message": "Failed to list build args.",
-			})
-
-			return
-		}
-
-		if len(urls) > 0 {
-			latestURL = app.LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
-		}
-
-		c.HTML(http.StatusOK, "app.tmpl", gin.H{
-			"error":      false,
-			"app":        appName,
-			"avater_url": user.GetAvaterURL(etcd, username),
-			"buildArgs":  buildArgs,
-			"envs":       envs,
-			"latestURL":  latestURL,
-			"logged_in":  true,
-			"urls":       urls,
-			"username":   username,
-		})
-	})
+	r.GET("/apps/:appName", appController.Get)
 
 	r.POST("/apps/:appName/build-args", func(c *gin.Context) {
 		session := sessions.Default(c)
