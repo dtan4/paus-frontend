@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/dtan4/paus-frontend/controller"
-	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/contrib/sessions"
@@ -36,16 +35,6 @@ func initialize(config *server.Config, etcd *store.Etcd) error {
 	}
 
 	return nil
-}
-
-func currentLoginUser(etcd *store.Etcd, session sessions.Session) string {
-	token := session.Get("token")
-
-	if token == nil {
-		return ""
-	}
-
-	return user.GetLoginUser(etcd, token.(string))
 }
 
 func main() {
