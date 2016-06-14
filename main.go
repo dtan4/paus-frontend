@@ -96,42 +96,13 @@ func main() {
 
 	rootController := controller.NewRootController(config, etcd)
 	appController := controller.NewAppController(config, etcd)
+	argController := controller.NewArgController(config, etcd)
 
 	r.GET("/", rootController.Index)
 	r.GET("/apps", appController.Index)
 	r.POST("/apps", appController.New)
 	r.GET("/apps/:appName", appController.Get)
-
-	r.POST("/apps/:appName/build-args", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		appName := c.Param("appName")
-		key := c.PostForm("key")
-		value := c.PostForm("value")
-
-		err := arg.Create(etcd, username, appName, key, value)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": "Failed to add build arg.",
-			})
-
-			return
-		}
-
-		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
-	})
+	r.POST("/apps/:appName/build-args", argController.Index)
 
 	// TODO: DELETE /apps/:appName/build-args
 	r.POST("/apps/:appName/build-args/delete", func(c *gin.Context) {
