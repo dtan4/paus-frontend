@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/coreos/etcd/client"
+	"github.com/dtan4/paus-frontend/server"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
@@ -53,6 +54,26 @@ func (c *Etcd) HasKey(key string) bool {
 	_, err := c.keysAPI.Get(context.Background(), key, &client.GetOptions{})
 
 	return err == nil
+}
+
+func (c *Etcd) Init(config *server.Config) error {
+	if !c.HasKey("/paus") {
+		if err := c.Mkdir("/paus"); err != nil {
+			return errors.Wrap(err, "Failed to create root directory.")
+		}
+	}
+
+	if !c.HasKey("/paus/users") {
+		if err := c.Mkdir("/paus/users"); err != nil {
+			return errors.Wrap(err, "Failed to create users directory.")
+		}
+	}
+
+	if err := c.Set("/paus/uri-scheme", config.URIScheme); err != nil {
+		return errors.Wrap(err, "Failed to set URI scheme in etcd.")
+	}
+
+	return nil
 }
 
 func (c *Etcd) List(key string, recursive bool) ([]string, error) {

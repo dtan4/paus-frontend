@@ -17,26 +17,6 @@ const (
 	AppName = "paus"
 )
 
-func initialize(config *server.Config, etcd *store.Etcd) error {
-	if !etcd.HasKey("/paus") {
-		if err := etcd.Mkdir("/paus"); err != nil {
-			return errors.Wrap(err, "Failed to create root directory.")
-		}
-	}
-
-	if !etcd.HasKey("/paus/users") {
-		if err := etcd.Mkdir("/paus/users"); err != nil {
-			return errors.Wrap(err, "Failed to create users directory.")
-		}
-	}
-
-	if err := etcd.Set("/paus/uri-scheme", config.URIScheme); err != nil {
-		return errors.Wrap(err, "Failed to set URI scheme in etcd.")
-	}
-
-	return nil
-}
-
 func main() {
 	printVersion()
 
@@ -58,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = initialize(config, etcd); err != nil {
+	if err = etcd.Init(config); err != nil {
 		errors.Fprint(os.Stderr, err)
 		os.Exit(1)
 	}
