@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/dtan4/paus-frontend/controller"
@@ -11,7 +9,6 @@ import (
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	githuboauth "golang.org/x/oauth2/github"
@@ -116,94 +113,7 @@ func main() {
 	r.GET("/update-keys", sessionController.UpdateKeys)
 	r.GET("/signin", sessionController.SignIn)
 	r.GET("/signout", sessionController.SignOut)
-
-	r.GET("/oauth/callback", func(c *gin.Context) {
-		session := sessions.Default(c)
-
-		if session.Get("state") == nil {
-			c.String(http.StatusBadRequest, "State string is not stored in session.")
-			return
-		}
-
-		storedState := session.Get("state").(string)
-		state := c.Query("state")
-
-		if state != storedState {
-			c.String(http.StatusUnauthorized, "State string does not match.")
-			return
-		}
-
-		session.Delete("state")
-
-		code := c.Query("code")
-		token, err := oauthConf.Exchange(oauth2.NoContext, code)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.String(http.StatusBadRequest, "Failed to generate OAuth access token.")
-			return
-		}
-
-		if !token.Valid() {
-			c.String(http.StatusBadRequest, "OAuth access token is invalid.")
-			return
-		}
-
-		oauthClient := oauthConf.Client(oauth2.NoContext, &oauth2.Token{AccessToken: token.AccessToken})
-		client := github.NewClient(oauthClient)
-
-		u, _, err := client.Users.Get("")
-
-		if err != nil {
-			c.String(http.StatusBadRequest, "Failed to retrive GitHub user profile.")
-		}
-
-		keys, _, err := client.Users.ListKeys("", &github.ListOptions{})
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.String(http.StatusBadRequest, "Failed to retrive SSH public keys from GitHub.")
-			return
-		}
-
-		for _, key := range keys {
-			if !config.SkipKeyUpload {
-				_, err := user.UploadPublicKey(*u.Login, *key.Key)
-
-				if err != nil {
-					errors.Fprint(os.Stderr, err)
-
-					c.String(http.StatusBadRequest, "Failed to register SSH public key.")
-					return
-				}
-			} else {
-				fmt.Printf("User: %s, Key: %s\n", *u.Login, *key.Key)
-			}
-		}
-
-		if !user.Exists(etcd, *u.Login) {
-			if err := user.Create(etcd, u); err != nil {
-				errors.Fprint(os.Stderr, err)
-
-				c.String(http.StatusBadRequest, "Failed to create user.")
-				return
-			}
-		}
-
-		if err := user.RegisterAccessToken(etcd, *u.Login, token.AccessToken); err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.String(http.StatusBadRequest, "Failed to register access token.")
-			return
-		}
-
-		session.Set("token", token.AccessToken)
-		session.Save()
-
-		c.Redirect(http.StatusSeeOther, "/")
-	})
+	r.GET("/oauth/callback", sessionController.Callback)
 
 	r.Run()
 }
