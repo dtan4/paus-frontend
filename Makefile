@@ -28,12 +28,14 @@ $(BINARYDIR)/$(GLIDE):
 ifeq ($(shell uname),Darwin)
 	curl -fL https://github.com/Masterminds/glide/releases/download/$(GLIDE_VERSION)/glide-$(GLIDE_VERSION)-darwin-amd64.zip -o glide.zip
 	unzip glide.zip
+	if [[ ! -d $(BINARYDIR) ]]; then mkdir $(BINARY_DIR); fi
 	mv ./darwin-amd64/glide $(BINARYDIR)/$(GLIDE)
 	rm -fr ./darwin-amd64
 	rm ./glide.zip
 else
 	curl -fL https://github.com/Masterminds/glide/releases/download/$(GLIDE_VERSION)/glide-$(GLIDE_VERSION)-linux-amd64.zip -o glide.zip
 	unzip glide.zip
+	if [[ ! -d $(BINARYDIR) ]]; then mkdir $(BINARY_DIR); fi
 	mv ./linux-amd64/glide $(BINARYDIR)/$(GLIDE)
 	rm -fr ./linux-amd64
 	rm ./glide.zip
