@@ -110,37 +110,7 @@ func main() {
 	r.POST("/apps/:appName/envs", envController.Index)
 
 	// TODO: DELETE /apps/:appName/envs
-	r.POST("/apps/:appName/envs/delete", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		appName := c.Param("appName")
-		key := c.PostForm("key")
-
-		fmt.Println(key)
-
-		err := env.Delete(etcd, username, appName, key)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": "Failed to detele environment variable.",
-			})
-
-			return
-		}
-
-		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
-	})
+	r.POST("/apps/:appName/envs/delete", envController.Delete)
 
 	r.POST("/apps/:appName/envs/upload", func(c *gin.Context) {
 		session := sessions.Default(c)
