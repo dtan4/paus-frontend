@@ -51,7 +51,7 @@ func (self *EnvController) Delete(c *gin.Context) {
 	c.Redirect(http.StatusSeeOther, "/apps/"+appName)
 }
 
-func (self *EnvController) Index(c *gin.Context) {
+func (self *EnvController) New(c *gin.Context) {
 	username := self.CurrentUser(c)
 
 	if username == "" {

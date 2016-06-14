@@ -102,12 +102,12 @@ func main() {
 	r.GET("/apps", appController.Index)
 	r.POST("/apps", appController.New)
 	r.GET("/apps/:appName", appController.Get)
-	r.POST("/apps/:appName/build-args", argController.Index)
+	r.POST("/apps/:appName/build-args", argController.New)
 
 	// TODO: DELETE /apps/:appName/build-args
 	r.POST("/apps/:appName/build-args/delete", argController.Delete)
 
-	r.POST("/apps/:appName/envs", envController.Index)
+	r.POST("/apps/:appName/envs", envController.New)
 
 	// TODO: DELETE /apps/:appName/envs
 	r.POST("/apps/:appName/envs/delete", envController.Delete)
