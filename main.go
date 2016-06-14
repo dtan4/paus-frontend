@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/dtan4/paus-frontend/controller"
-	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/server"
@@ -105,35 +104,7 @@ func main() {
 	r.POST("/apps/:appName/build-args", argController.Index)
 
 	// TODO: DELETE /apps/:appName/build-args
-	r.POST("/apps/:appName/build-args/delete", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		appName := c.Param("appName")
-		key := c.PostForm("key")
-
-		err := arg.Delete(etcd, username, appName, key)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": "Failed to delete build arg.",
-			})
-
-			return
-		}
-
-		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
-	})
+	r.POST("/apps/:appName/build-args/delete", argController.Delete)
 
 	r.POST("/apps/:appName/envs", func(c *gin.Context) {
 		session := sessions.Default(c)

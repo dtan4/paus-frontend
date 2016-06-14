@@ -19,6 +19,35 @@ func NewArgController(config *server.Config, etcd *store.Etcd) *ArgController {
 	return &ArgController{NewApplicationController(config, etcd)}
 }
 
+func (self *ArgController) Delete(c *gin.Context) {
+	username := self.CurrentUser(c)
+
+	if username == "" {
+		c.Redirect(http.StatusFound, "/")
+
+		return
+	}
+
+	appName := c.Param("appName")
+	key := c.PostForm("key")
+
+	err := arg.Delete(self.etcd, username, appName, key)
+
+	if err != nil {
+		errors.Fprint(os.Stderr, err)
+
+		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+			"alert":   true,
+			"error":   true,
+			"message": "Failed to delete build arg.",
+		})
+
+		return
+	}
+
+	c.Redirect(http.StatusSeeOther, "/apps/"+appName)
+}
+
 func (self *ArgController) Index(c *gin.Context) {
 	username := self.CurrentUser(c)
 
