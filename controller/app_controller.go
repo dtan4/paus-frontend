@@ -60,3 +60,31 @@ func (self *AppController) Index(c *gin.Context) {
 		"username":   username,
 	})
 }
+
+func (self *AppController) New(c *gin.Context) {
+	username := self.CurrentUser(c)
+
+	if username == "" {
+		c.Redirect(http.StatusFound, "/")
+
+		return
+	}
+
+	appName := c.PostForm("appName")
+
+	err := app.Create(self.etcd, username, appName)
+
+	if err != nil {
+		errors.Fprint(os.Stderr, err)
+
+		c.HTML(http.StatusInternalServerError, "users.tmpl", gin.H{
+			"alert":   true,
+			"error":   true,
+			"message": "Failed to create app.",
+		})
+
+		return
+	}
+
+	c.Redirect(http.StatusSeeOther, "/apps/"+appName)
+}

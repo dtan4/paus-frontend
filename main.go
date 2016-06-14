@@ -100,35 +100,7 @@ func main() {
 
 	r.GET("/", rootController.Index)
 	r.GET("/apps", appController.Index)
-
-	r.POST("/apps", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		appName := c.PostForm("appName")
-
-		err := app.Create(etcd, username, appName)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "users.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": "Failed to create app.",
-			})
-
-			return
-		}
-
-		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
-	})
+	r.POST("/apps", appController.New)
 
 	r.GET("/apps/:appName", func(c *gin.Context) {
 		var latestURL string
