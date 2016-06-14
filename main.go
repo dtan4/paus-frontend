@@ -96,49 +96,10 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 
 	rootController := controller.NewRootController(config, etcd)
+	appController := controller.NewAppController(config, etcd)
 
 	r.GET("/", rootController.Index)
-
-	r.GET("/apps", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		if !user.Exists(etcd, username) {
-			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
-				"error":   true,
-				"message": fmt.Sprintf("User %s does not exist.", username),
-			})
-
-			return
-		}
-
-		apps, err := app.List(etcd, username)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "apps.tmpl", gin.H{
-				"error":   true,
-				"message": "Failed to list apps.",
-			})
-
-			return
-		}
-
-		c.HTML(http.StatusOK, "apps.tmpl", gin.H{
-			"error":      false,
-			"apps":       apps,
-			"avater_url": user.GetAvaterURL(etcd, username),
-			"logged_in":  true,
-			"username":   username,
-		})
-	})
+	r.GET("/apps", appController.Index)
 
 	r.POST("/apps", func(c *gin.Context) {
 		session := sessions.Default(c)
