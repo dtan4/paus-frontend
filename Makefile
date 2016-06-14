@@ -32,10 +32,10 @@ ifeq ($(shell uname),Darwin)
 	rm -fr ./darwin-amd64
 	rm ./glide.zip
 else
-	curl -fL https://github.com/Masterminds/glide/releases/download/$(GLIDE_VERSION)/glide-$(GLIDE_VERSION)-linux-386.zip -o glide.zip
+	curl -fL https://github.com/Masterminds/glide/releases/download/$(GLIDE_VERSION)/glide-$(GLIDE_VERSION)-linux-amd64.zip -o glide.zip
 	unzip glide.zip
-	mv ./linux-386/glide $(BINARYDIR)/$(GLIDE)
-	rm -fr ./linux-386
+	mv ./linux-amd64/glide $(BINARYDIR)/$(GLIDE)
+	rm -fr ./linux-amd64
 	rm ./glide.zip
 endif
 
