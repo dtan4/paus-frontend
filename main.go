@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/dtan4/paus-frontend/server"
+	"github.com/dtan4/paus-frontend/store"
 	"github.com/dtan4/paus-frontend/util"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ const (
 	AppName = "paus"
 )
 
-func initialize(config *server.Config, etcd *Etcd) error {
+func initialize(config *server.Config, etcd *store.Etcd) error {
 	if !etcd.HasKey("/paus") {
 		if err := etcd.Mkdir("/paus"); err != nil {
 			return errors.Wrap(err, "Failed to create root directory.")
@@ -39,7 +40,7 @@ func initialize(config *server.Config, etcd *Etcd) error {
 	return nil
 }
 
-func currentLoginUser(etcd *Etcd, session sessions.Session) string {
+func currentLoginUser(etcd *store.Etcd, session sessions.Session) string {
 	token := session.Get("token")
 
 	if token == nil {
@@ -63,7 +64,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	etcd, err := NewEtcd(config.EtcdEndpoint)
+	etcd, err := store.NewEtcd(config.EtcdEndpoint)
 
 	if err != nil {
 		errors.Fprint(os.Stderr, err)

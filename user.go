@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/dtan4/paus-frontend/store"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
 
-func CreateUser(etcd *Etcd, user *github.User) error {
+func CreateUser(etcd *store.Etcd, user *github.User) error {
 	username := *user.Login
 
 	if err := etcd.Mkdir("/paus/users/" + username); err != nil {
@@ -26,23 +27,23 @@ func CreateUser(etcd *Etcd, user *github.User) error {
 	return nil
 }
 
-func GetAvaterURL(etcd *Etcd, username string) string {
+func GetAvaterURL(etcd *store.Etcd, username string) string {
 	avaterURL, _ := etcd.Get("/paus/users/" + username + "/avater_url")
 
 	return avaterURL
 }
 
-func GetLoginUser(etcd *Etcd, accessToken string) string {
+func GetLoginUser(etcd *store.Etcd, accessToken string) string {
 	username, _ := etcd.Get("/paus/sessions/" + accessToken)
 
 	return username
 }
 
-func RegisterAccessToken(etcd *Etcd, username, accessToken string) error {
+func RegisterAccessToken(etcd *store.Etcd, username, accessToken string) error {
 	return etcd.Set("/paus/sessions/"+accessToken, username)
 }
 
-func UserExists(etcd *Etcd, username string) bool {
+func UserExists(etcd *store.Etcd, username string) bool {
 	return etcd.HasKey("/paus/users/" + username)
 }
 

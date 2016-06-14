@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dtan4/paus-frontend/store"
 	"github.com/pkg/errors"
 )
 
-func AddBuildArg(etcd *Etcd, username, appName, key, value string) error {
+func AddBuildArg(etcd *store.Etcd, username, appName, key, value string) error {
 	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/build-args/"+key, value); err != nil {
 		return errors.Wrap(
 			err,
@@ -18,7 +19,7 @@ func AddBuildArg(etcd *Etcd, username, appName, key, value string) error {
 	return nil
 }
 
-func DeleteBuildArg(etcd *Etcd, username, appName, key string) error {
+func DeleteBuildArg(etcd *store.Etcd, username, appName, key string) error {
 	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/build-args/" + key); err != nil {
 		return errors.Wrap(
 			err,
@@ -29,7 +30,7 @@ func DeleteBuildArg(etcd *Etcd, username, appName, key string) error {
 	return nil
 }
 
-func BuildArgs(etcd *Etcd, username, appName string) (*map[string]string, error) {
+func BuildArgs(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/build-args/", true)
 
 	if err != nil {

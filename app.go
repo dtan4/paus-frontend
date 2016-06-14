@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dtan4/paus-frontend/store"
 	"github.com/pkg/errors"
 )
 
-func AppExists(etcd *Etcd, username, appName string) bool {
+func AppExists(etcd *store.Etcd, username, appName string) bool {
 	return etcd.HasKey("/paus/users/" + username + "/apps/" + appName)
 }
 
-func Apps(etcd *Etcd, username string) ([]string, error) {
+func Apps(etcd *store.Etcd, username string) ([]string, error) {
 	apps, err := etcd.List("/paus/users/"+username+"/apps/", true)
 
 	if err != nil {
@@ -32,7 +33,7 @@ func AppURL(uriScheme, identifier, baseDomain string) string {
 	return strings.ToLower(uriScheme + "://" + identifier + "." + baseDomain)
 }
 
-func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
+func AppURLs(etcd *store.Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
 	revisions, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/revisions/", true)
 
 	if err != nil {
@@ -50,7 +51,7 @@ func AppURLs(etcd *Etcd, uriScheme, baseDomain, username, appName string) ([]str
 	return result, nil
 }
 
-func CreateApp(etcd *Etcd, username, appName string) error {
+func CreateApp(etcd *store.Etcd, username, appName string) error {
 	if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Failed to create app. username: %s, appName: %s", username, appName))
 	}
