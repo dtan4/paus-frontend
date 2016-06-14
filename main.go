@@ -113,53 +113,7 @@ func main() {
 
 	r.POST("/apps/:appName/envs/upload", envController.Upload)
 
-	r.GET("/update-keys", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		token := session.Get("token").(string)
-		oauthClient := oauthConf.Client(oauth2.NoContext, &oauth2.Token{AccessToken: token})
-		client := github.NewClient(oauthClient)
-
-		u, _, err := client.Users.Get("")
-
-		if err != nil {
-			c.String(http.StatusBadRequest, "Failed to retrive GitHub user profile.")
-		}
-
-		keys, _, err := client.Users.ListKeys("", &github.ListOptions{})
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.String(http.StatusBadRequest, "Failed to retrive SSH public keys from GitHub.")
-			return
-		}
-
-		for _, key := range keys {
-			if !config.SkipKeyUpload {
-				_, err := user.UploadPublicKey(*u.Login, *key.Key)
-
-				if err != nil {
-					errors.Fprint(os.Stderr, err)
-
-					c.String(http.StatusBadRequest, "Failed to register SSH public key.")
-					return
-				}
-			} else {
-				fmt.Printf("User: %s, Key: %s\n", *u.Login, *key.Key)
-			}
-		}
-
-		c.Redirect(http.StatusSeeOther, "/")
-	})
-
+	r.GET("/update-keys", sessionController.UpdateKeys)
 	r.GET("/signin", sessionController.SignIn)
 	r.GET("/signout", sessionController.SignOut)
 
