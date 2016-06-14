@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/server"
@@ -261,7 +262,7 @@ func main() {
 			return
 		}
 
-		buildArgs, err := BuildArgs(etcd, username, appName)
+		buildArgs, err := arg.List(etcd, username, appName)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -305,7 +306,7 @@ func main() {
 		key := c.PostForm("key")
 		value := c.PostForm("value")
 
-		err := AddBuildArg(etcd, username, appName, key, value)
+		err := arg.Create(etcd, username, appName, key, value)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -336,7 +337,7 @@ func main() {
 		appName := c.Param("appName")
 		key := c.PostForm("key")
 
-		err := DeleteBuildArg(etcd, username, appName, key)
+		err := arg.Delete(etcd, username, appName, key)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)

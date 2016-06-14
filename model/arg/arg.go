@@ -1,4 +1,4 @@
-package main
+package arg
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func AddBuildArg(etcd *store.Etcd, username, appName, key, value string) error {
+func Create(etcd *store.Etcd, username, appName, key, value string) error {
 	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/build-args/"+key, value); err != nil {
 		return errors.Wrap(
 			err,
@@ -19,7 +19,7 @@ func AddBuildArg(etcd *store.Etcd, username, appName, key, value string) error {
 	return nil
 }
 
-func DeleteBuildArg(etcd *store.Etcd, username, appName, key string) error {
+func Delete(etcd *store.Etcd, username, appName, key string) error {
 	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/build-args/" + key); err != nil {
 		return errors.Wrap(
 			err,
@@ -30,7 +30,7 @@ func DeleteBuildArg(etcd *store.Etcd, username, appName, key string) error {
 	return nil
 }
 
-func BuildArgs(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
+func List(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/build-args/", true)
 
 	if err != nil {
