@@ -88,4 +88,4 @@ stop-etcd:
 
 .PHONY: test
 test:
-	go test -v . ./util
+	go test -v . ./model/app ./util

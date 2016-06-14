@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/model/app"
 	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/user"
@@ -153,7 +154,7 @@ func main() {
 			return
 		}
 
-		apps, err := Apps(etcd, username)
+		apps, err := app.List(etcd, username)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -187,7 +188,7 @@ func main() {
 
 		appName := c.PostForm("appName")
 
-		err := CreateApp(etcd, username, appName)
+		err := app.Create(etcd, username, appName)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -227,7 +228,7 @@ func main() {
 
 		appName := c.Param("appName")
 
-		if !AppExists(etcd, username, appName) {
+		if !app.Exists(etcd, username, appName) {
 			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("Application %s does not exist.", appName),
@@ -236,7 +237,7 @@ func main() {
 			return
 		}
 
-		urls, err := AppURLs(etcd, config.URIScheme, config.BaseDomain, username, appName)
+		urls, err := app.URLs(etcd, config.URIScheme, config.BaseDomain, username, appName)
 
 		if err != nil {
 			errors.Fprint(os.Stderr, err)
@@ -276,7 +277,7 @@ func main() {
 		}
 
 		if len(urls) > 0 {
-			latestURL = LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
+			latestURL = app.LatestAppURLOfUser(config.URIScheme, config.BaseDomain, username, appName)
 		}
 
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
