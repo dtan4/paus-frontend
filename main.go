@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/controller"
 	"github.com/dtan4/paus-frontend/model/app"
 	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/model/env"
@@ -94,46 +95,9 @@ func main() {
 	r.Static("/assets", "assets")
 	r.LoadHTMLGlob("templates/*")
 
-	r.GET("/", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
+	rootController := controller.NewRootController(config, etcd)
 
-		if username == "" {
-			c.HTML(http.StatusOK, "index.tmpl", gin.H{
-				"alert":      false,
-				"error":      false,
-				"logged_in":  false,
-				"message":    "",
-				"baseDomain": config.BaseDomain,
-			})
-
-			return
-		}
-
-		if !user.Exists(etcd, username) {
-			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
-				"error":   true,
-				"message": fmt.Sprintf("User %s does not exist.", username),
-			})
-
-			return
-		}
-
-		if err != nil {
-			c.String(http.StatusNotFound, "User not found.")
-			return
-		}
-
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"alert":      false,
-			"avater_url": user.GetAvaterURL(etcd, username),
-			"error":      false,
-			"logged_in":  true,
-			"message":    "",
-			"username":   username,
-			"baseDomain": config.BaseDomain,
-		})
-	})
+	r.GET("/", rootController.Index)
 
 	r.GET("/apps", func(c *gin.Context) {
 		session := sessions.Default(c)
