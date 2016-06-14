@@ -40,25 +40,23 @@ func Run(config *config.Config, etcd *store.Etcd) {
 	sessionController := controller.NewSessionController(config, etcd, oauthConf)
 
 	r.GET("/", rootController.Index)
-	r.GET("/apps", appController.Index)
-	r.POST("/apps", appController.New)
-	r.GET("/apps/:appName", appController.Get)
-	r.POST("/apps/:appName/build-args", argController.New)
 
-	// TODO: DELETE /apps/:appName/build-args
-	r.POST("/apps/:appName/build-args/delete", argController.Delete)
-
-	r.POST("/apps/:appName/envs", envController.New)
-
-	// TODO: DELETE /apps/:appName/envs
-	r.POST("/apps/:appName/envs/delete", envController.Delete)
-
-	r.POST("/apps/:appName/envs/upload", envController.Upload)
-
-	r.GET("/update-keys", sessionController.UpdateKeys)
 	r.GET("/signin", sessionController.SignIn)
 	r.GET("/signout", sessionController.SignOut)
 	r.GET("/oauth/callback", sessionController.Callback)
+	r.GET("/update-keys", sessionController.UpdateKeys)
+
+	r.GET("/apps", appController.Index)
+	r.POST("/apps", appController.New)
+
+	r.GET("/apps/:appName", appController.Get)
+
+	r.POST("/apps/:appName/build-args", argController.New)
+	r.POST("/apps/:appName/build-args/delete", argController.Delete) // TODO: DELETE /apps/:appName/build-args
+
+	r.POST("/apps/:appName/envs", envController.New)
+	r.POST("/apps/:appName/envs/delete", envController.Delete) // TODO: DELETE /apps/:appName/envs
+	r.POST("/apps/:appName/envs/upload", envController.Upload)
 
 	r.Run()
 }
