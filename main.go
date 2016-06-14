@@ -96,6 +96,7 @@ func main() {
 	rootController := controller.NewRootController(config, etcd)
 	appController := controller.NewAppController(config, etcd)
 	argController := controller.NewArgController(config, etcd)
+	envController := controller.NewEnvController(config, etcd)
 
 	r.GET("/", rootController.Index)
 	r.GET("/apps", appController.Index)
@@ -106,36 +107,7 @@ func main() {
 	// TODO: DELETE /apps/:appName/build-args
 	r.POST("/apps/:appName/build-args/delete", argController.Delete)
 
-	r.POST("/apps/:appName/envs", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := currentLoginUser(etcd, session)
-
-		if username == "" {
-			c.Redirect(http.StatusFound, "/")
-
-			return
-		}
-
-		appName := c.Param("appName")
-		key := c.PostForm("key")
-		value := c.PostForm("value")
-
-		err := env.Create(etcd, username, appName, key, value)
-
-		if err != nil {
-			errors.Fprint(os.Stderr, err)
-
-			c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
-				"alert":   true,
-				"error":   true,
-				"message": "Failed to add environment variable.",
-			})
-
-			return
-		}
-
-		c.Redirect(http.StatusSeeOther, "/apps/"+appName)
-	})
+	r.POST("/apps/:appName/envs", envController.Index)
 
 	// TODO: DELETE /apps/:appName/envs
 	r.POST("/apps/:appName/envs/delete", func(c *gin.Context) {
