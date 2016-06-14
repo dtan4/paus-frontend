@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/server"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/dtan4/paus-frontend/util"
@@ -47,7 +48,7 @@ func currentLoginUser(etcd *store.Etcd, session sessions.Session) string {
 		return ""
 	}
 
-	return GetLoginUser(etcd, token.(string))
+	return user.GetLoginUser(etcd, token.(string))
 }
 
 func main() {
@@ -106,7 +107,7 @@ func main() {
 			return
 		}
 
-		if !UserExists(etcd, username) {
+		if !user.Exists(etcd, username) {
 			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
@@ -122,7 +123,7 @@ func main() {
 
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"alert":      false,
-			"avater_url": GetAvaterURL(etcd, username),
+			"avater_url": user.GetAvaterURL(etcd, username),
 			"error":      false,
 			"logged_in":  true,
 			"message":    "",
@@ -141,7 +142,7 @@ func main() {
 			return
 		}
 
-		if !UserExists(etcd, username) {
+		if !user.Exists(etcd, username) {
 			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
@@ -166,7 +167,7 @@ func main() {
 		c.HTML(http.StatusOK, "apps.tmpl", gin.H{
 			"error":      false,
 			"apps":       apps,
-			"avater_url": GetAvaterURL(etcd, username),
+			"avater_url": user.GetAvaterURL(etcd, username),
 			"logged_in":  true,
 			"username":   username,
 		})
@@ -213,7 +214,7 @@ func main() {
 			return
 		}
 
-		if !UserExists(etcd, username) {
+		if !user.Exists(etcd, username) {
 			c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 				"error":   true,
 				"message": fmt.Sprintf("User %s does not exist.", username),
@@ -279,7 +280,7 @@ func main() {
 		c.HTML(http.StatusOK, "app.tmpl", gin.H{
 			"error":      false,
 			"app":        appName,
-			"avater_url": GetAvaterURL(etcd, username),
+			"avater_url": user.GetAvaterURL(etcd, username),
 			"buildArgs":  buildArgs,
 			"envs":       envs,
 			"latestURL":  latestURL,
@@ -470,7 +471,7 @@ func main() {
 		oauthClient := oauthConf.Client(oauth2.NoContext, &oauth2.Token{AccessToken: token})
 		client := github.NewClient(oauthClient)
 
-		user, _, err := client.Users.Get("")
+		u, _, err := client.Users.Get("")
 
 		if err != nil {
 			c.String(http.StatusBadRequest, "Failed to retrive GitHub user profile.")
@@ -487,7 +488,7 @@ func main() {
 
 		for _, key := range keys {
 			if !config.SkipKeyUpload {
-				_, err := UploadPublicKey(*user.Login, *key.Key)
+				_, err := user.UploadPublicKey(*u.Login, *key.Key)
 
 				if err != nil {
 					errors.Fprint(os.Stderr, err)
@@ -496,7 +497,7 @@ func main() {
 					return
 				}
 			} else {
-				fmt.Printf("User: %s, Key: %s\n", *user.Login, *key.Key)
+				fmt.Printf("User: %s, Key: %s\n", *u.Login, *key.Key)
 			}
 		}
 
@@ -565,7 +566,7 @@ func main() {
 		oauthClient := oauthConf.Client(oauth2.NoContext, &oauth2.Token{AccessToken: token.AccessToken})
 		client := github.NewClient(oauthClient)
 
-		user, _, err := client.Users.Get("")
+		u, _, err := client.Users.Get("")
 
 		if err != nil {
 			c.String(http.StatusBadRequest, "Failed to retrive GitHub user profile.")
@@ -582,7 +583,7 @@ func main() {
 
 		for _, key := range keys {
 			if !config.SkipKeyUpload {
-				_, err := UploadPublicKey(*user.Login, *key.Key)
+				_, err := user.UploadPublicKey(*u.Login, *key.Key)
 
 				if err != nil {
 					errors.Fprint(os.Stderr, err)
@@ -591,12 +592,12 @@ func main() {
 					return
 				}
 			} else {
-				fmt.Printf("User: %s, Key: %s\n", *user.Login, *key.Key)
+				fmt.Printf("User: %s, Key: %s\n", *u.Login, *key.Key)
 			}
 		}
 
-		if !UserExists(etcd, *user.Login) {
-			if err := CreateUser(etcd, user); err != nil {
+		if !user.Exists(etcd, *u.Login) {
+			if err := user.Create(etcd, u); err != nil {
 				errors.Fprint(os.Stderr, err)
 
 				c.String(http.StatusBadRequest, "Failed to create user.")
@@ -604,7 +605,7 @@ func main() {
 			}
 		}
 
-		if err := RegisterAccessToken(etcd, *user.Login, token.AccessToken); err != nil {
+		if err := user.RegisterAccessToken(etcd, *u.Login, token.AccessToken); err != nil {
 			errors.Fprint(os.Stderr, err)
 
 			c.String(http.StatusBadRequest, "Failed to register access token.")

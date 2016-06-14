@@ -1,4 +1,4 @@
-package main
+package user
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func CreateUser(etcd *store.Etcd, user *github.User) error {
+func Create(etcd *store.Etcd, user *github.User) error {
 	username := *user.Login
 
 	if err := etcd.Mkdir("/paus/users/" + username); err != nil {
@@ -27,6 +27,10 @@ func CreateUser(etcd *store.Etcd, user *github.User) error {
 	return nil
 }
 
+func Exists(etcd *store.Etcd, username string) bool {
+	return etcd.HasKey("/paus/users/" + username)
+}
+
 func GetAvaterURL(etcd *store.Etcd, username string) string {
 	avaterURL, _ := etcd.Get("/paus/users/" + username + "/avater_url")
 
@@ -41,10 +45,6 @@ func GetLoginUser(etcd *store.Etcd, accessToken string) string {
 
 func RegisterAccessToken(etcd *store.Etcd, username, accessToken string) error {
 	return etcd.Set("/paus/sessions/"+accessToken, username)
-}
-
-func UserExists(etcd *store.Etcd, username string) bool {
-	return etcd.HasKey("/paus/users/" + username)
 }
 
 func UploadPublicKey(username, pubKey string) (string, error) {
