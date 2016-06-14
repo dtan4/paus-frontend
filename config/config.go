@@ -1,6 +1,7 @@
-package main
+package config
 
 import (
+	"github.com/dtan4/paus-frontend/util"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 )
@@ -30,7 +31,7 @@ func LoadConfig() (*Config, error) {
 	}
 
 	if config.SecretKeyBase == "" {
-		s, err := GenerateRandomString()
+		s, err := util.GenerateRandomString()
 
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to generate secret key base.")

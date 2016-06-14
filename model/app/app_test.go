@@ -1,16 +1,16 @@
-package main
+package app
 
 import (
 	"testing"
 )
 
-func TestAppURL(t *testing.T) {
+func TestURL(t *testing.T) {
 	uriScheme := "http"
 	identifier := "dtan4-hoge"
 	baseDomain := "pausapp.com"
 
 	expected := "http://dtan4-hoge.pausapp.com"
-	actual := AppURL(uriScheme, identifier, baseDomain)
+	actual := URL(uriScheme, identifier, baseDomain)
 
 	if expected != actual {
 		t.Fatalf("Expected: %s, Actual: %s", expected, actual)
@@ -21,7 +21,7 @@ func TestAppURL(t *testing.T) {
 	baseDomain = "Pausapp.com"
 
 	expected = "http://dtan4-hoge.pausapp.com"
-	actual = AppURL(uriScheme, identifier, baseDomain)
+	actual = URL(uriScheme, identifier, baseDomain)
 
 	if expected != actual {
 		t.Fatalf("Expected: %s, Actual: %s", expected, actual)

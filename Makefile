@@ -1,6 +1,7 @@
 VERSION := 0.1.0
 REVISION := $(shell git rev-parse --short HEAD)
 BUILDTIME := $(shell date '+%Y/%m/%d %H:%M:%S %Z')
+GOVERSION := $(subst go version ,,$(shell go version))
 
 BINARYDIR := bin
 BINARY := paus-frontend
@@ -9,7 +10,7 @@ LINUX_AMD64_SUFFIX := _linux-amd64
 SOURCEDIR := .
 SOURCES := $(shell find $(SOURCEDIR) -name '*.go' -type f)
 
-LDFLAGS := -ldflags="-w -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -X \"main.BuildTime=$(BUILDTIME)\""
+LDFLAGS := -ldflags="-w -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -X \"main.BuildTime=$(BUILDTIME)\" -X \"main.GoVersion=$(GOVERSION)\""
 
 GLIDE := glide
 GLIDE_VERSION := 0.10.2
@@ -88,4 +89,4 @@ stop-etcd:
 
 .PHONY: test
 test:
-	go test
+	go test -v . ./model/app ./util

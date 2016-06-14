@@ -1,4 +1,4 @@
-package main
+package env
 
 import (
 	"bufio"
@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/dtan4/paus-frontend/store"
 	"github.com/pkg/errors"
 )
 
@@ -18,7 +19,7 @@ var (
 	DotenvLine = regexp.MustCompile(DotenvLineRegexp)
 )
 
-func AddEnvironmentVariable(etcd *Etcd, username, appName, key, value string) error {
+func Create(etcd *store.Etcd, username, appName, key, value string) error {
 	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value); err != nil {
 		return errors.Wrap(
 			err,
@@ -29,7 +30,7 @@ func AddEnvironmentVariable(etcd *Etcd, username, appName, key, value string) er
 	return nil
 }
 
-func DeleteEnvironmentVariable(etcd *Etcd, username, appName, key string) error {
+func Delete(etcd *store.Etcd, username, appName, key string) error {
 	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/envs/" + key); err != nil {
 		return errors.Wrap(
 			err,
@@ -40,7 +41,7 @@ func DeleteEnvironmentVariable(etcd *Etcd, username, appName, key string) error 
 	return nil
 }
 
-func EnvironmentVariables(etcd *Etcd, username, appName string) (*map[string]string, error) {
+func List(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/envs/", true)
 
 	if err != nil {
@@ -57,7 +58,7 @@ func EnvironmentVariables(etcd *Etcd, username, appName string) (*map[string]str
 	return &result, nil
 }
 
-func LoadDotenv(etcd *Etcd, username, appName string, dotenvFile io.Reader) error {
+func LoadDotenv(etcd *store.Etcd, username, appName string, dotenvFile io.Reader) error {
 	scanner := bufio.NewScanner(dotenvFile)
 
 	for scanner.Scan() {
@@ -70,7 +71,7 @@ func LoadDotenv(etcd *Etcd, username, appName string, dotenvFile io.Reader) erro
 
 		key, value := matchResult[1], matchResult[2]
 
-		if err := AddEnvironmentVariable(etcd, username, appName, key, value); err != nil {
+		if err := Create(etcd, username, appName, key, value); err != nil {
 			return errors.Wrap(err, "Failed to load dotenv.")
 		}
 	}
