@@ -13,7 +13,7 @@ func Create(etcd *store.Etcd, username, appName string) error {
 		return errors.Wrap(err, fmt.Sprintf("Failed to create app. username: %s, appName: %s", username, appName))
 	}
 
-	for _, resource := range []string{"build-args", "envs", "revisions"} {
+	for _, resource := range []string{"build-args", "envs", "deployments"} {
 		if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName + "/" + resource); err != nil {
 			return errors.Wrap(
 				err,
@@ -51,7 +51,7 @@ func URL(uriScheme, identifier, baseDomain string) string {
 }
 
 func URLs(etcd *store.Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	revisions, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/revisions/", true)
+	deployments, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/deployments/", true)
 
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Failed to list up app URLs. username: %s, appName: %s", username, appName))
@@ -59,8 +59,13 @@ func URLs(etcd *store.Etcd, uriScheme, baseDomain, username, appName string) ([]
 
 	result := make([]string, 0)
 
-	for _, revision := range revisions {
-		revision := strings.Replace(revision, "/paus/users/"+username+"/apps/"+appName+"/revisions/", "", 1)
+	for _, deployment := range deployments {
+		revision, err := etcd.Get(deployment)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to list up URL.")
+		}
+
 		identifier := username + "-" + appName + "-" + revision[0:8]
 		result = append(result, URL(uriScheme, identifier, baseDomain))
 	}
