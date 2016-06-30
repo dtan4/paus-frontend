@@ -1,24 +1,19 @@
 package app
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/dtan4/paus-frontend/store"
-	"github.com/pkg/errors"
 )
 
 func Create(etcd *store.Etcd, username, appName string) error {
 	if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Failed to create app. username: %s, appName: %s", username, appName))
+		return err
 	}
 
 	for _, resource := range []string{"build-args", "envs", "deployments"} {
 		if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName + "/" + resource); err != nil {
-			return errors.Wrap(
-				err,
-				fmt.Sprintf("Failed to create app resource. username: %s, appName: %s, resource: %s", username, appName, resource),
-			)
+			return err
 		}
 	}
 
@@ -33,7 +28,7 @@ func List(etcd *store.Etcd, username string) ([]string, error) {
 	apps, err := etcd.List("/paus/users/"+username+"/apps/", true)
 
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Failed to list up apps. username: %s", username))
+		return nil, err
 	}
 
 	result := make([]string, 0)
@@ -54,7 +49,7 @@ func URLs(etcd *store.Etcd, uriScheme, baseDomain, username, appName string) ([]
 	deployments, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/deployments/", true)
 
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Failed to list up app URLs. username: %s, appName: %s", username, appName))
+		return nil, err
 	}
 
 	result := make([]string, 0)
@@ -63,7 +58,7 @@ func URLs(etcd *store.Etcd, uriScheme, baseDomain, username, appName string) ([]
 		revision, err := etcd.Get(deployment)
 
 		if err != nil {
-			return nil, errors.Wrap(err, "Failed to list up URL.")
+			return nil, err
 		}
 
 		identifier := username + "-" + appName + "-" + revision[0:8]

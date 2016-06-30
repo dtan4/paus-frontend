@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/github"
-	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
 
@@ -47,7 +46,7 @@ func (self *SessionController) Callback(c *gin.Context) {
 	token, err := self.oauthConf.Exchange(oauth2.NoContext, code)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.String(http.StatusBadRequest, "Failed to generate OAuth access token.")
 		return
@@ -70,7 +69,7 @@ func (self *SessionController) Callback(c *gin.Context) {
 	keys, _, err := client.Users.ListKeys("", &github.ListOptions{})
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.String(http.StatusBadRequest, "Failed to retrive SSH public keys from GitHub.")
 		return
@@ -81,7 +80,7 @@ func (self *SessionController) Callback(c *gin.Context) {
 			_, err := user.UploadPublicKey(*u.Login, *key.Key)
 
 			if err != nil {
-				errors.Fprint(os.Stderr, err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 				c.String(http.StatusBadRequest, "Failed to register SSH public key.")
 				return
@@ -93,7 +92,7 @@ func (self *SessionController) Callback(c *gin.Context) {
 
 	if !user.Exists(self.etcd, *u.Login) {
 		if err := user.Create(self.etcd, u); err != nil {
-			errors.Fprint(os.Stderr, err)
+			fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 			c.String(http.StatusBadRequest, "Failed to create user.")
 			return
@@ -101,7 +100,7 @@ func (self *SessionController) Callback(c *gin.Context) {
 	}
 
 	if err := user.RegisterAccessToken(self.etcd, *u.Login, token.AccessToken); err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.String(http.StatusBadRequest, "Failed to register access token.")
 		return
@@ -117,7 +116,7 @@ func (self *SessionController) SignIn(c *gin.Context) {
 	state, err := util.GenerateRandomString()
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.String(http.StatusBadRequest, "Failed to generate state string.", err)
 		return
@@ -162,7 +161,7 @@ func (self *SessionController) UpdateKeys(c *gin.Context) {
 	keys, _, err := client.Users.ListKeys("", &github.ListOptions{})
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.String(http.StatusBadRequest, "Failed to retrive SSH public keys from GitHub.")
 		return
@@ -173,7 +172,7 @@ func (self *SessionController) UpdateKeys(c *gin.Context) {
 			_, err := user.UploadPublicKey(*u.Login, *key.Key)
 
 			if err != nil {
-				errors.Fprint(os.Stderr, err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 				c.String(http.StatusBadRequest, "Failed to register SSH public key.")
 				return

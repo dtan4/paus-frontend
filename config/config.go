@@ -34,7 +34,7 @@ func LoadConfig() (*Config, error) {
 		s, err := util.GenerateRandomString()
 
 		if err != nil {
-			return nil, errors.Wrap(err, "Failed to generate secret key base.")
+			return nil, err
 		}
 
 		config.SecretKeyBase = s

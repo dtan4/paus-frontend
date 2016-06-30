@@ -59,18 +59,18 @@ func (c *Etcd) HasKey(key string) bool {
 func (c *Etcd) Init(config *config.Config) error {
 	if !c.HasKey("/paus") {
 		if err := c.Mkdir("/paus"); err != nil {
-			return errors.Wrap(err, "Failed to create root directory.")
+			return err
 		}
 	}
 
 	if !c.HasKey("/paus/users") {
 		if err := c.Mkdir("/paus/users"); err != nil {
-			return errors.Wrap(err, "Failed to create users directory.")
+			return err
 		}
 	}
 
 	if err := c.Set("/paus/uri-scheme", config.URIScheme); err != nil {
-		return errors.Wrap(err, "Failed to set URI scheme in etcd.")
+		return err
 	}
 
 	return nil
@@ -98,7 +98,7 @@ func (c *Etcd) ListWithValues(key string, recursive bool) (*map[string]string, e
 	resp, err := c.keysAPI.Get(context.Background(), key, &client.GetOptions{Recursive: recursive})
 
 	if err != nil {
-		return &result, errors.Wrap(err, fmt.Sprintf("Failed to list up etcd keys with value. key: %s, recursive: %v", key, recursive))
+		return &result, errors.Wrap(err, fmt.Sprintf("Failed to list up etcd keys with value. key: %s, recursive: %t", key, recursive))
 	}
 
 	for _, node := range resp.Node.Nodes {

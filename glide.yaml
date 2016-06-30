@@ -9,6 +9,7 @@ import:
   - context
 - package: github.com/kelseyhightower/envconfig
 - package: github.com/pkg/errors
+  version: ~0.7.0
 - package: github.com/google/go-github
   subpackages:
   - github
