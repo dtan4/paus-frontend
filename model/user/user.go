@@ -13,15 +13,15 @@ func Create(etcd *store.Etcd, user *github.User) error {
 	username := *user.Login
 
 	if err := etcd.Mkdir("/paus/users/" + username); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Failed to create user. username: %s", username))
+		return err
 	}
 
 	if err := etcd.Set("/paus/users/"+username+"/avater_url", *user.AvatarURL); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Failed to set avater URL. username: %s", username))
+		return err
 	}
 
 	if err := etcd.Mkdir("/paus/users/" + username + "/apps"); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Failed to create user app directory. username: %s", username))
+		return err
 	}
 
 	return nil

@@ -2,13 +2,11 @@ package env
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"regexp"
 	"strings"
 
 	"github.com/dtan4/paus-frontend/store"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -21,10 +19,7 @@ var (
 
 func Create(etcd *store.Etcd, username, appName, key, value string) error {
 	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value); err != nil {
-		return errors.Wrap(
-			err,
-			fmt.Sprintf("Failed to add environment variable. username: %s, appName: %s, key: %s, value: %s", username, appName, key, value),
-		)
+		return err
 	}
 
 	return nil
@@ -32,10 +27,7 @@ func Create(etcd *store.Etcd, username, appName, key, value string) error {
 
 func Delete(etcd *store.Etcd, username, appName, key string) error {
 	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/envs/" + key); err != nil {
-		return errors.Wrap(
-			err,
-			fmt.Sprintf("Failed to delete environment variable. username: %s, appName: %s, key: %s", username, appName, key),
-		)
+		return err
 	}
 
 	return nil
@@ -45,7 +37,7 @@ func List(etcd *store.Etcd, username, appName string) (*map[string]string, error
 	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/envs/", true)
 
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Failed to list environment variables. username: %s, appName: %s", username, appName))
+		return nil, err
 	}
 
 	result := map[string]string{}
@@ -72,7 +64,7 @@ func LoadDotenv(etcd *store.Etcd, username, appName string, dotenvFile io.Reader
 		key, value := matchResult[1], matchResult[2]
 
 		if err := Create(etcd, username, appName, key, value); err != nil {
-			return errors.Wrap(err, "Failed to load dotenv.")
+			return err
 		}
 	}
 
