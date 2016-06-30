@@ -12,7 +12,6 @@ import (
 	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 )
 
 type AppController struct {
@@ -44,7 +43,7 @@ func (self *AppController) Index(c *gin.Context) {
 	apps, err := app.List(self.etcd, username)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "apps.tmpl", gin.H{
 			"error":   true,
@@ -97,7 +96,7 @@ func (self *AppController) Get(c *gin.Context) {
 	urls, err := app.URLs(self.etcd, self.config.URIScheme, self.config.BaseDomain, username, appName)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"error":   true,
@@ -110,7 +109,7 @@ func (self *AppController) Get(c *gin.Context) {
 	envs, err := env.List(self.etcd, username, appName)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"error":   true,
@@ -123,7 +122,7 @@ func (self *AppController) Get(c *gin.Context) {
 	buildArgs, err := arg.List(self.etcd, username, appName)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"error":   true,
@@ -164,7 +163,7 @@ func (self *AppController) New(c *gin.Context) {
 	err := app.Create(self.etcd, username, appName)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "users.tmpl", gin.H{
 			"alert":   true,

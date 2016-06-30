@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 )
 
 type ArgController struct {
@@ -34,7 +34,7 @@ func (self *ArgController) Delete(c *gin.Context) {
 	err := arg.Delete(self.etcd, username, appName, key)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"alert":   true,
@@ -64,7 +64,7 @@ func (self *ArgController) New(c *gin.Context) {
 	err := arg.Create(self.etcd, username, appName, key, value)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"alert":   true,

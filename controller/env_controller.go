@@ -9,7 +9,6 @@ import (
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 )
 
 type EnvController struct {
@@ -37,7 +36,7 @@ func (self *EnvController) Delete(c *gin.Context) {
 	err := env.Delete(self.etcd, username, appName, key)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"alert":   true,
@@ -67,7 +66,7 @@ func (self *EnvController) New(c *gin.Context) {
 	err := env.Create(self.etcd, username, appName, key, value)
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"alert":   true,
@@ -95,7 +94,7 @@ func (self *EnvController) Upload(c *gin.Context) {
 	dotenvFile, _, err := c.Request.FormFile("dotenv")
 
 	if err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"alert":   true,
@@ -107,7 +106,7 @@ func (self *EnvController) Upload(c *gin.Context) {
 	}
 
 	if err = env.LoadDotenv(self.etcd, username, appName, dotenvFile); err != nil {
-		errors.Fprint(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"alert":   true,

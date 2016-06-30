@@ -1,5 +1,5 @@
-hash: a32bf6edd33aeef9ebb2380e22156568e3f6df6d69e6065c87147899392f9bce
-updated: 2016-05-19T17:50:33.35668249+09:00
+hash: fad13d60f5ed322b2140e79152f220c280cb6680bd29352052f789c687d3d94f
+updated: 2016-06-30T14:49:55.871252+09:00
 imports:
 - name: github.com/boj/redistore
   version: fc113767cd6b051980f260d6dbe84b2740c46ab0
@@ -46,7 +46,7 @@ imports:
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
 - name: github.com/pkg/errors
-  version: 7a0abd8f636d0048ea2fca80a67a23ef8c0e5c7d
+  version: 01fa4104b9c248c8945d14d9f128454d5b28d595
 - name: github.com/ugorji/go
   version: a396ed22fc049df733440d90efe17475e3929ccb
   subpackages:
