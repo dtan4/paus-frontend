@@ -6,13 +6,29 @@ import (
 	"github.com/dtan4/paus-frontend/store"
 )
 
+var (
+	defaultHealthCheck = map[string]string{
+		"path":     "/",
+		"interval": "5",
+		"max-try":  "10",
+	}
+)
+
 func Create(etcd *store.Etcd, username, appName string) error {
-	if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName); err != nil {
+	appKey := "/paus/users/" + username + "/apps/" + appName
+
+	if err := etcd.Mkdir(appKey); err != nil {
 		return err
 	}
 
-	for _, resource := range []string{"build-args", "envs", "deployments"} {
-		if err := etcd.Mkdir("/paus/users/" + username + "/apps/" + appName + "/" + resource); err != nil {
+	for _, resource := range []string{"build-args", "envs", "deployments", "healthcheck"} {
+		if err := etcd.Mkdir(appKey + "/" + resource); err != nil {
+			return err
+		}
+	}
+
+	for k, v := range defaultHealthCheck {
+		if err := etcd.Set(appKey+"/healthcheck/"+k, v); err != nil {
 			return err
 		}
 	}
