@@ -3,15 +3,14 @@ package app
 import (
 	"strings"
 
+	"github.com/dtan4/paus-frontend/model/healthcheck"
 	"github.com/dtan4/paus-frontend/store"
 )
 
-var (
-	defaultHealthCheck = map[string]string{
-		"path":     "/",
-		"interval": "5",
-		"max-try":  "10",
-	}
+const (
+	defaultHealthcheckPath     = "/"
+	defaultHealthcheckInterval = 5
+	defaultHealthcheckMaxTry   = 10
 )
 
 func Create(etcd *store.Etcd, username, appName string) error {
@@ -27,10 +26,10 @@ func Create(etcd *store.Etcd, username, appName string) error {
 		}
 	}
 
-	for k, v := range defaultHealthCheck {
-		if err := etcd.Set(appKey+"/healthcheck/"+k, v); err != nil {
-			return err
-		}
+	hc := healthcheck.NewHealthcheck(defaultHealthcheckPath, defaultHealthcheckInterval, defaultHealthcheckMaxTry)
+
+	if err := healthcheck.Create(etcd, username, appName, hc); err != nil {
+		return err
 	}
 
 	return nil
