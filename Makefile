@@ -3,12 +3,10 @@ REVISION := $(shell git rev-parse --short HEAD)
 BUILDTIME := $(shell date '+%Y/%m/%d %H:%M:%S %Z')
 GOVERSION := $(subst go version ,,$(shell go version))
 
-BINARYDIR := bin
 BINARY := paus-frontend
 LINUX_AMD64_SUFFIX := _linux-amd64
 
-SOURCEDIR := .
-SOURCES := $(shell find $(SOURCEDIR) -name '*.go' -type f)
+SOURCES := $(shell find . -name '*.go' -type f)
 
 LDFLAGS := -ldflags="-w -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -X \"main.BuildTime=$(BUILDTIME)\" -X \"main.GoVersion=$(GOVERSION)\""
 
@@ -22,30 +20,28 @@ DOCKER_IMAGE_NAME := $(DOCKER_REPOSITORY)/dtan4/paus-frontend
 DOCKER_IMAGE_TAG := latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 
-.DEFAULT_GOAL := $(BINARYDIR)/$(BINARY)
+.DEFAULT_GOAL := bin/$(BINARY)
 
 glide:
 ifeq ($(shell uname),Darwin)
 	curl -fL https://github.com/Masterminds/glide/releases/download/v$(GLIDE_VERSION)/glide-v$(GLIDE_VERSION)-darwin-amd64.zip -o glide.zip
 	unzip glide.zip
-	if [ ! -d $(BINARYDIR) ]; then mkdir $(BINARYDIR); fi
 	mv ./darwin-amd64/glide glide
 	rm -fr ./darwin-amd64
 	rm ./glide.zip
 else
 	curl -fL https://github.com/Masterminds/glide/releases/download/v$(GLIDE_VERSION)/glide-v$(GLIDE_VERSION)-linux-amd64.zip -o glide.zip
 	unzip glide.zip
-	if [ ! -d $(BINARYDIR) ]; then mkdir $(BINARYDIR); fi
 	mv ./linux-amd64/glide glide
 	rm -fr ./linux-amd64
 	rm ./glide.zip
 endif
 
-$(BINARYDIR)/$(BINARY): $(SOURCES)
-	go build $(LDFLAGS) -o $(BINARYDIR)/$(BINARY)
+bin/$(BINARY): deps $(SOURCES)
+	go build $(LDFLAGS) -o bin/$(BINARY)
 
-$(BINARYDIR)/$(BINARY)$(LINUX_AMD64_SUFFIX): $(SOURCES)
-	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(BINARYDIR)/$(BINARY)$(LINUX_AMD64_SUFFIX)
+bin/$(BINARY)$(LINUX_AMD64_SUFFIX): deps $(SOURCES)
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o bin/$(BINARY)$(LINUX_AMD64_SUFFIX)
 
 .PHONY: ci-docker-release
 ci-docker-release: docker-release-build
@@ -54,7 +50,7 @@ ci-docker-release: docker-release-build
 
 .PHONY: clean
 clean:
-	rm -fr $(BINARYDIR)
+	rm -fr bin/*
 
 .PHONY: deps
 deps: glide
@@ -65,7 +61,7 @@ docker-build: clean
 	docker build -t $(DOCKER_IMAGE) .
 
 .PHONY: docker-release-build
-docker-release-build: $(BINARYDIR)/$(BINARY)$(LINUX_AMD64_SUFFIX)
+docker-release-build: bin/$(BINARY)$(LINUX_AMD64_SUFFIX)
 	docker build -f Dockerfile.release -t $(DOCKER_IMAGE) .
 
 .PHONY: run-etcd
@@ -87,5 +83,5 @@ stop-etcd:
 	docker rm $(ETCD_CONTAINER) > /dev/null 2>&1 || true
 
 .PHONY: test
-test:
+test: deps
 	go test -v . ./model/app ./util
