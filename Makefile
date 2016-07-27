@@ -51,13 +51,14 @@ ci-docker-release: docker-release-build
 .PHONY: clean
 clean:
 	rm -fr bin/*
+	rm -fr vendor/*
 
 .PHONY: deps
 deps: glide
 	./glide install
 
 .PHONY: docker-build
-docker-build: clean
+docker-build:
 	docker build -t $(DOCKER_IMAGE) .
 
 .PHONY: docker-release-build
