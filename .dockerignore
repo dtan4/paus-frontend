@@ -1,10 +1,5 @@
 *
 !Dockerfile
-!Makefile
-!*.go
-!glide.lock
-!glide.yaml
 !assets/
 !templates/
-!bin/paus-frontend
 !bin/paus-frontend_linux-amd64
