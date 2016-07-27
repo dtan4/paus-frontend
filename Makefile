@@ -60,6 +60,10 @@ deps: glide
 docker-build: bin/$(BINARY)$(LINUX_AMD64_SUFFIX)
 	docker build -t $(DOCKER_IMAGE) .
 
+.PHONY: docker-push
+docker-push:
+	docker push $(DOCKER_IMAGE)
+
 .PHONY: run-etcd
 run-etcd: stop-etcd
 	docker run -d -p 4001:4001 -p 2380:2380 -p 2379:2379 --name $(ETCD_CONTAINER) \
