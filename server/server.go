@@ -37,6 +37,7 @@ func Run(config *config.Config, etcd *store.Etcd) {
 	appController := controller.NewAppController(config, etcd)
 	argController := controller.NewArgController(config, etcd)
 	envController := controller.NewEnvController(config, etcd)
+	healthcheckController := controller.NewHealthcheckController(config, etcd)
 	sessionController := controller.NewSessionController(config, etcd, oauthConf)
 
 	r.GET("/", rootController.Index)
@@ -57,6 +58,8 @@ func Run(config *config.Config, etcd *store.Etcd) {
 	r.POST("/apps/:appName/envs", envController.New)
 	r.POST("/apps/:appName/envs/delete", envController.Delete) // TODO: DELETE /apps/:appName/envs
 	r.POST("/apps/:appName/envs/upload", envController.Upload)
+
+	r.POST("/apps/:appName/healthcheck", healthcheckController.Update)
 
 	r.Run()
 }
