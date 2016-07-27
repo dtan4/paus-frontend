@@ -9,6 +9,7 @@ import (
 	"github.com/dtan4/paus-frontend/model/app"
 	"github.com/dtan4/paus-frontend/model/arg"
 	"github.com/dtan4/paus-frontend/model/env"
+	"github.com/dtan4/paus-frontend/model/healthcheck"
 	"github.com/dtan4/paus-frontend/model/user"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
@@ -132,20 +133,33 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
+	hc, err := healthcheck.Get(self.etcd, username, appName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
+
+		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+			"error":   true,
+			"message": "Failed to get healthcheck.",
+		})
+
+		return
+	}
+
 	if len(urls) > 0 {
 		latestURL = app.LatestAppURLOfUser(self.config.URIScheme, self.config.BaseDomain, username, appName)
 	}
 
 	c.HTML(http.StatusOK, "app.tmpl", gin.H{
-		"error":      false,
-		"app":        appName,
-		"avater_url": user.GetAvaterURL(self.etcd, username),
-		"buildArgs":  buildArgs,
-		"envs":       envs,
-		"latestURL":  latestURL,
-		"logged_in":  true,
-		"urls":       urls,
-		"username":   username,
+		"error":       false,
+		"app":         appName,
+		"avater_url":  user.GetAvaterURL(self.etcd, username),
+		"buildArgs":   buildArgs,
+		"envs":        envs,
+		"healthcheck": hc,
+		"latestURL":   latestURL,
+		"logged_in":   true,
+		"urls":        urls,
+		"username":    username,
 	})
 }
 
@@ -165,7 +179,7 @@ func (self *AppController) New(c *gin.Context) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
-		c.HTML(http.StatusInternalServerError, "users.tmpl", gin.H{
+		c.HTML(http.StatusInternalServerError, "apps.tmpl", gin.H{
 			"alert":   true,
 			"error":   true,
 			"message": "Failed to create app.",

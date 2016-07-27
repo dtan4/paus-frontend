@@ -8,6 +8,10 @@
      .monospace {
        font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
      }
+
+     .form-healthcheck > * {
+       margin-right: 5px;
+     }
     </style>
   </head>
   <body>
@@ -36,6 +40,7 @@
           {{ end }}
         </div>
       </div>
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">Build-time variables</h3>
@@ -85,6 +90,7 @@
           {{ end }}
         </div>
       </div>
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">Environment variables</h3>
@@ -145,6 +151,35 @@
           </form>
           {{ end }}
         </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Health Check</h3>
+        </div>
+        <form class="form-inline form-healthcheck" method="POST" action="/apps/{{ .app }}/healthcheck">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="healthcheckPathInput">Path</label>
+              <input type="text" class="form-control monospace" id="healthcheckPathInput" name="path" value="{{ .healthcheck.Path }}" placeholder="PATH">
+            </div>
+            <div class="form-group">
+              <label for="healthchecIntervalnput">Interval (seconds)</label>
+              <input type="number" class="form-control monospace" id="healthchecIntervalInput" name="interval" value="{{ .healthcheck.Interval }}">
+            </div>
+            <div class="form-group">
+              <label for="healthchecMaxTryInput">Maximum try count</label>
+              <input type="number" class="form-control monospace" id="healthchecMaxTryInput" name="maxTry" value="{{ .healthcheck.MaxTry }}">
+            </div>
+          </div>
+          <div class="panel-footer">
+            <div class="text-right">
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
 

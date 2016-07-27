@@ -20,7 +20,7 @@ func Create(etcd *store.Etcd, username, appName string) error {
 		return err
 	}
 
-	for _, resource := range []string{"build-args", "envs", "deployments", "healthcheck"} {
+	for _, resource := range []string{"build-args", "envs", "deployments"} {
 		if err := etcd.Mkdir(appKey + "/" + resource); err != nil {
 			return err
 		}
