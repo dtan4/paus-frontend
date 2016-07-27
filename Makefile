@@ -7,7 +7,7 @@ LINUX_AMD64_SUFFIX := _linux-amd64
 
 SOURCES := $(shell find . -name '*.go' -type f)
 
-LDFLAGS := -ldflags="-w -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -X \"main.GoVersion=$(GOVERSION)\""
+LDFLAGS := -ldflags="-s -w -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -X \"main.GoVersion=$(GOVERSION)\""
 
 GLIDE_VERSION := 0.11.1
 
