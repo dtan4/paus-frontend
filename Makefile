@@ -3,11 +3,10 @@ VERSION := 0.1.0
 REVISION := $(shell git rev-parse --short HEAD)
 GOVERSION := $(subst go version ,,$(shell go version))
 
-LINUX_AMD64_SUFFIX := _linux-amd64
-
 SOURCES := $(shell find . -name '*.go' -type f)
-
 LDFLAGS := -ldflags="-s -w -X \"main.Version=$(VERSION)\" -X \"main.Revision=$(REVISION)\" -X \"main.GoVersion=$(GOVERSION)\""
+
+LINUX_AMD64_SUFFIX := _linux-amd64
 
 GLIDE := $(shell command -v glide 2> /dev/null)
 
