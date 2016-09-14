@@ -34,8 +34,7 @@ Authorization callback URL must be `http(s)://<base domain>/oauth/callback`.
 
 ## Development
 
-Go 1.5 or higher is required.
-`GO15VENDOREXPERIMENT=1` must be set with Go 1.5.
+Go 1.6 or higher is required.
 
 ``` bash
 $ make deps

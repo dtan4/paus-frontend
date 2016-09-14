@@ -3,10 +3,8 @@ services:
   - docker
 language: go
 go:
-  - '1.5'
   - '1.6'
-env:
-  - GO15VENDOREXPERIMENT=1
+  - '1.7'
 install:
   - make deps
 script:
