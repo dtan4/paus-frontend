@@ -14,7 +14,7 @@ deploy:
   script: make ci-docker-release
   on:
     branch: master
-    go: '1.6'
+    go: '1.7'
 notifications:
   slack:
     secure: WmR92rkjFPLcstfYKqSvGI4NLt9EIogbs6wWUQdiLJXj4Xap+UWMQ42PiU9ARPHLZSn8N3dye3pP2Ps3WYbKxT2+dfXny0M6W57+WSPm3Jzm+3Khk0wa5dV2MkDFTcN0fL2ttWYDHzx+7DRyM+ywZNqT934ObpAJCrUGulrmqT4g3ISqC96fQThU41FHdB05qCboA6S63wWyXzQGCc9SDIuLpqHm53VyDf0I/TSGoh4wYWJxLWSh7wHEda6CAC8eCmxHJTC5mkelGXbgoUTOH55h4uDKq+VAtFNN76O+cr5/1JdewykKN6+5YEn/8xVicBCDrVv5FNXyYoSMwo3bPPCA5yMyQ2E42VBa4nvyp6OeyJ0mj1VW6ifaMlzrlGZFs93lEyMm/wndo4QOMMC90MOKBtUPeiQBxrZY/WsV3BRbCnhjjGl27cB8AOZJzW3DFKOMGeTDOb0IZ2ZIdZL07cjc1EZQPECXR36sDxie4dizIzSPc5Z8wUtftWvMeye6GEUdkuHDQcj+vbCJn0c+M0UfUl8RkDiDqz4ZDnF83C7KJzCeTEU4dwsPTHg7r7eDikWcUcNK3CaYToV5mt26dh9zzP7/fRQFU2cvsbPwqTLVsNVo9Jsq3nNohjODvfuiTr2KiDEUPz7mMnXZ2RnrmbmUiZA3TyAva+nb7zci2N4=
