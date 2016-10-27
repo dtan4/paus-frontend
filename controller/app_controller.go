@@ -145,7 +145,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	hc, err := healthcheck.Get(self.etcd, username, appName)
+	hc, err := healthcheck.Get(username, appName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 

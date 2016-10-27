@@ -28,7 +28,7 @@ func Create(etcd *store.Etcd, username, appName string) error {
 
 	hc := healthcheck.NewHealthcheck(defaultHealthcheckPath, defaultHealthcheckInterval, defaultHealthcheckMaxTry)
 
-	if err := healthcheck.Create(etcd, username, appName, hc); err != nil {
+	if err := healthcheck.Create(username, appName, hc); err != nil {
 		return err
 	}
 

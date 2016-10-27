@@ -60,7 +60,7 @@ func (self *HealthcheckController) Update(c *gin.Context) {
 
 	hc := healthcheck.NewHealthcheck(path, interval, maxTry)
 
-	if err := healthcheck.Update(self.etcd, username, appName, hc); err != nil {
+	if err := healthcheck.Update(username, appName, hc); err != nil {
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
 			"alert":   true,
 			"error":   true,
