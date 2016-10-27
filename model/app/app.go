@@ -1,11 +1,12 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/dtan4/paus-frontend/aws"
+	"github.com/dtan4/paus-frontend/model/deployment"
 	"github.com/dtan4/paus-frontend/model/healthcheck"
-	"github.com/dtan4/paus-frontend/store"
 )
 
 const (
@@ -72,33 +73,31 @@ func List(username string) ([]string, error) {
 	return result, nil
 }
 
+// URL returns the unique URL of the deployment
 func URL(uriScheme, identifier, baseDomain string) string {
 	return strings.ToLower(uriScheme + "://" + identifier + "." + baseDomain)
 }
 
-func URLs(etcd *store.Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	deployments, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/deployments/", true)
-
+// URLs returns all URLs of the given app
+func URLs(uriScheme, baseDomain, username, appName string) ([]string, error) {
+	deployments, err := deployment.List(username, appName)
 	if err != nil {
-		return nil, err
+		return []string{}, nil
 	}
 
-	result := make([]string, 0)
+	result := []string{}
+
+	var identifier string
 
 	for _, deployment := range deployments {
-		revision, err := etcd.Get(deployment)
-
-		if err != nil {
-			return nil, err
-		}
-
-		identifier := username + "-" + appName + "-" + revision[0:8]
+		identifier = fmt.Sprintf("%s-%s-%s", username, appName, deployment.Revision)
 		result = append(result, URL(uriScheme, identifier, baseDomain))
 	}
 
 	return result, nil
 }
 
+// LatestAppURLOfUser returns <username>-<appname>.<basedomain> style URL
 func LatestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
 	identifier := username + "-" + appName
 

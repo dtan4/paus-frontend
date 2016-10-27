@@ -106,7 +106,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	urls, err := app.URLs(self.etcd, self.config.URIScheme, self.config.BaseDomain, username, appName)
+	urls, err := app.URLs(self.config.URIScheme, self.config.BaseDomain, username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
