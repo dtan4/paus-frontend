@@ -1,9 +1,6 @@
 package: github.com/dtan4/paus-frontend
 import:
 - package: github.com/gin-gonic/gin
-- package: github.com/coreos/etcd
-  subpackages:
-  - client
 - package: golang.org/x/net
   subpackages:
   - context

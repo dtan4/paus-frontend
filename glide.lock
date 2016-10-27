@@ -1,20 +1,37 @@
-hash: 032c1b9e4ee3e61eb298219b75f95599e4abe501ed07f2765950b4da3c477450
-updated: 2016-10-27T16:14:50.448624184+09:00
+hash: f38f800df1b4a5b404ca10135cb059622d1fcfb90d6bc957d3bd6161ba348fbf
+updated: 2016-10-27T19:37:51.37767849+09:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: 32cdc88aa5cd2ba4afa049da884aaf9a3d103ef4
   subpackages:
   - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/request
   - aws/session
+  - aws/signer/v4
+  - private/endpoints
+  - private/protocol
+  - private/protocol/json/jsonutil
+  - private/protocol/jsonrpc
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/xml/xmlutil
+  - private/waiter
   - service/dynamodb
+  - service/sts
 - name: github.com/boj/redistore
   version: fc113767cd6b051980f260d6dbe84b2740c46ab0
-- name: github.com/coreos/etcd
-  version: 29853967681e161e756a6221b681743dc053604c
-  subpackages:
-  - client
-  - pkg/pathutil
-  - pkg/types
 - name: github.com/garyburd/redigo
   version: 8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13
   subpackages:
@@ -29,6 +46,8 @@ imports:
   subpackages:
   - binding
   - render
+- name: github.com/go-ini/ini
+  version: cf53f9204df4fbdd7ec4164b57fa6184ba168292
 - name: github.com/golang/protobuf
   version: 2402d76f3d41f928c7902a765dfc872356dd3aad
   subpackages:
@@ -47,16 +66,14 @@ imports:
   version: 667fe4e3466a040b780561fe9b51a83a3753eefc
 - name: github.com/gorilla/sessions
   version: a4e6dd28f9e9274729417506b9bd0a6c3edb91ce
+- name: github.com/jmespath/go-jmespath
+  version: 0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74
 - name: github.com/kelseyhightower/envconfig
   version: cea086319492c3940683ea5e122aa5de70a33923
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
 - name: github.com/pkg/errors
   version: 17b591df37844cde689f4d5813e5cea0927d8dd2
-- name: github.com/ugorji/go
-  version: a396ed22fc049df733440d90efe17475e3929ccb
-  subpackages:
-  - codec
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
