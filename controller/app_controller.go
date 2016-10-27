@@ -11,7 +11,6 @@ import (
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/healthcheck"
 	"github.com/dtan4/paus-frontend/model/user"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,8 +18,9 @@ type AppController struct {
 	*ApplicationController
 }
 
-func NewAppController(config *config.Config, etcd *store.Etcd) *AppController {
-	return &AppController{NewApplicationController(config, etcd)}
+// NewAppController creates new AppController object
+func NewAppController(config *config.Config) *AppController {
+	return &AppController{NewApplicationController(config)}
 }
 
 func (self *AppController) Index(c *gin.Context) {
@@ -32,7 +32,7 @@ func (self *AppController) Index(c *gin.Context) {
 		return
 	}
 
-	if !user.Exists(self.etcd, username) {
+	if !user.Exists(username) {
 		c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 			"error":   true,
 			"message": fmt.Sprintf("User %s does not exist.", username),
@@ -41,7 +41,7 @@ func (self *AppController) Index(c *gin.Context) {
 		return
 	}
 
-	apps, err := app.List(self.etcd, username)
+	apps, err := app.List(username)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -54,10 +54,22 @@ func (self *AppController) Index(c *gin.Context) {
 		return
 	}
 
+	avaterURL, err := user.GetAvaterURL(username)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
+
+		c.HTML(http.StatusInternalServerError, "apps.tmpl", gin.H{
+			"error":   true,
+			"message": "Failed to get avater URL.",
+		})
+
+		return
+	}
+
 	c.HTML(http.StatusOK, "apps.tmpl", gin.H{
 		"error":      false,
 		"apps":       apps,
-		"avater_url": user.GetAvaterURL(self.etcd, username),
+		"avater_url": avaterURL,
 		"logged_in":  true,
 		"username":   username,
 	})
@@ -74,7 +86,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	if !user.Exists(self.etcd, username) {
+	if !user.Exists(username) {
 		c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 			"error":   true,
 			"message": fmt.Sprintf("User %s does not exist.", username),
@@ -85,7 +97,7 @@ func (self *AppController) Get(c *gin.Context) {
 
 	appName := c.Param("appName")
 
-	if !app.Exists(self.etcd, username, appName) {
+	if !app.Exists(username, appName) {
 		c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 			"error":   true,
 			"message": fmt.Sprintf("Application %s does not exist.", appName),
@@ -94,7 +106,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	urls, err := app.URLs(self.etcd, self.config.URIScheme, self.config.BaseDomain, username, appName)
+	urls, err := app.URLs(self.config.URIScheme, self.config.BaseDomain, username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -107,7 +119,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	envs, err := env.List(self.etcd, username, appName)
+	envs, err := env.List(username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -120,7 +132,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	buildArgs, err := arg.List(self.etcd, username, appName)
+	buildArgs, err := arg.List(username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -133,7 +145,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	hc, err := healthcheck.Get(self.etcd, username, appName)
+	hc, err := healthcheck.Get(username, appName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
@@ -149,10 +161,22 @@ func (self *AppController) Get(c *gin.Context) {
 		latestURL = app.LatestAppURLOfUser(self.config.URIScheme, self.config.BaseDomain, username, appName)
 	}
 
+	avaterURL, err := user.GetAvaterURL(username)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
+
+		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+			"error":   true,
+			"message": "Failed to get avater URL.",
+		})
+
+		return
+	}
+
 	c.HTML(http.StatusOK, "app.tmpl", gin.H{
 		"error":       false,
 		"app":         appName,
-		"avater_url":  user.GetAvaterURL(self.etcd, username),
+		"avater_url":  avaterURL,
 		"buildArgs":   buildArgs,
 		"envs":        envs,
 		"healthcheck": hc,
@@ -174,7 +198,7 @@ func (self *AppController) New(c *gin.Context) {
 
 	appName := c.PostForm("appName")
 
-	err := app.Create(self.etcd, username, appName)
+	err := app.Create(username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)

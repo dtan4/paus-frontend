@@ -7,7 +7,6 @@ import (
 
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/arg"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,8 +14,9 @@ type ArgController struct {
 	*ApplicationController
 }
 
-func NewArgController(config *config.Config, etcd *store.Etcd) *ArgController {
-	return &ArgController{NewApplicationController(config, etcd)}
+// NewArgController creates new ArgController
+func NewArgController(config *config.Config) *ArgController {
+	return &ArgController{NewApplicationController(config)}
 }
 
 func (self *ArgController) Delete(c *gin.Context) {
@@ -31,7 +31,7 @@ func (self *ArgController) Delete(c *gin.Context) {
 	appName := c.Param("appName")
 	key := c.PostForm("key")
 
-	err := arg.Delete(self.etcd, username, appName, key)
+	err := arg.Delete(username, appName, key)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -61,7 +61,7 @@ func (self *ArgController) New(c *gin.Context) {
 	key := c.PostForm("key")
 	value := c.PostForm("value")
 
-	err := arg.Create(self.etcd, username, appName, key, value)
+	err := arg.Create(username, appName, key, value)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)

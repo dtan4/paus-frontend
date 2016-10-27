@@ -1,40 +1,66 @@
 package arg
 
 import (
-	"strings"
-
-	"github.com/dtan4/paus-frontend/store"
+	"github.com/dtan4/paus-frontend/aws"
 )
 
-func Create(etcd *store.Etcd, username, appName, key, value string) error {
-	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/build-args/"+key, value); err != nil {
+const (
+	buildArgsTable = "paus-build-args"
+	userAppIndex   = "user-app-index"
+)
+
+// Create creates / creates build arg
+func Create(username, appName, key, value string) error {
+	dynamodb := aws.NewDynamoDB()
+
+	if err := dynamodb.Update(buildArgsTable, map[string]string{
+		"user":  username,
+		"app":   appName,
+		"key":   key,
+		"value": value,
+	}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func Delete(etcd *store.Etcd, username, appName, key string) error {
-	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/build-args/" + key); err != nil {
+// Delete deletes the given build arg
+func Delete(username, appName, key string) error {
+	dynamodb := aws.NewDynamoDB()
+
+	if err := dynamodb.Delete(buildArgsTable, map[string]string{
+		"user": username,
+		"app":  appName,
+		"key":  key,
+	}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func List(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
-	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/build-args/", true)
+// List returns build args of given application
+func List(username, appName string) (map[string]string, error) {
+	dynamodb := aws.NewDynamoDB()
 
+	items, err := dynamodb.Select(buildArgsTable, userAppIndex, map[string]string{
+		"user": username,
+		"app":  appName,
+	})
 	if err != nil {
-		return nil, err
+		return make(map[string]string), err
 	}
 
-	result := map[string]string{}
+	args := make(map[string]string)
 
-	for key, value := range *envs {
-		envKey := strings.Replace(key, "/paus/users/"+username+"/apps/"+appName+"/build-args/", "", 1)
-		result[envKey] = value
+	var key, value string
+
+	for _, attrValue := range items {
+		key = *attrValue["key"].S
+		value = *attrValue["value"].S
+		args[key] = value
 	}
 
-	return &result, nil
+	return args, nil
 }
