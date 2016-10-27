@@ -107,7 +107,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	envs, err := env.List(self.etcd, username, appName)
+	envs, err := env.List(username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)

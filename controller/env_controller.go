@@ -33,7 +33,7 @@ func (self *EnvController) Delete(c *gin.Context) {
 
 	fmt.Println(key)
 
-	err := env.Delete(self.etcd, username, appName, key)
+	err := env.Delete(username, appName, key)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -63,7 +63,7 @@ func (self *EnvController) New(c *gin.Context) {
 	key := c.PostForm("key")
 	value := c.PostForm("value")
 
-	err := env.Create(self.etcd, username, appName, key, value)
+	err := env.Create(username, appName, key, value)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -105,7 +105,7 @@ func (self *EnvController) Upload(c *gin.Context) {
 		return
 	}
 
-	if err = env.LoadDotenv(self.etcd, username, appName, dotenvFile); err != nil {
+	if err = env.LoadDotenv(username, appName, dotenvFile); err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{

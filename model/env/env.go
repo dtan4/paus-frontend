@@ -4,58 +4,84 @@ import (
 	"bufio"
 	"io"
 	"regexp"
-	"strings"
 
-	"github.com/dtan4/paus-frontend/store"
+	"github.com/dtan4/paus-frontend/aws"
 )
 
 const (
-	DotenvLineRegexp = `\A([\w\.]+)(?:\s*=\s*|:\s+?)([^#\n]+)?(?:\s*\#.*)?\z`
+	envsTable    = "paus-envs"
+	userAppIndex = "user-app-index"
+
+	dotenvLineRegexp = `\A([\w\.]+)(?:\s*=\s*|:\s+?)([^#\n]+)?(?:\s*\#.*)?\z`
 )
 
 var (
-	DotenvLine = regexp.MustCompile(DotenvLineRegexp)
+	dotenvLine = regexp.MustCompile(dotenvLineRegexp)
 )
 
-func Create(etcd *store.Etcd, username, appName, key, value string) error {
-	if err := etcd.Set("/paus/users/"+username+"/apps/"+appName+"/envs/"+key, value); err != nil {
+// Create creates / creates environment variable
+func Create(username, appName, key, value string) error {
+	dynamodb := aws.NewDynamoDB()
+
+	if err := dynamodb.Update(envsTable, map[string]string{
+		"user":  username,
+		"app":   appName,
+		"key":   key,
+		"value": value,
+	}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func Delete(etcd *store.Etcd, username, appName, key string) error {
-	if err := etcd.Delete("/paus/users/" + username + "/apps/" + appName + "/envs/" + key); err != nil {
+// Delete deletes the given environment variable
+func Delete(username, appName, key string) error {
+	dynamodb := aws.NewDynamoDB()
+
+	if err := dynamodb.Delete(envsTable, map[string]string{
+		"user": username,
+		"app":  appName,
+		"key":  key,
+	}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func List(etcd *store.Etcd, username, appName string) (*map[string]string, error) {
-	envs, err := etcd.ListWithValues("/paus/users/"+username+"/apps/"+appName+"/envs/", true)
+// List returns environment variables of given application
+func List(username, appName string) (map[string]string, error) {
+	dynamodb := aws.NewDynamoDB()
 
+	items, err := dynamodb.Select(envsTable, userAppIndex, map[string]string{
+		"user": username,
+		"app":  appName,
+	})
 	if err != nil {
-		return nil, err
+		return make(map[string]string), err
 	}
 
-	result := map[string]string{}
+	args := make(map[string]string)
 
-	for key, value := range *envs {
-		envKey := strings.Replace(key, "/paus/users/"+username+"/apps/"+appName+"/envs/", "", 1)
-		result[envKey] = value
+	var key, value string
+
+	for _, attrValue := range items {
+		key = *attrValue["key"].S
+		value = *attrValue["value"].S
+		args[key] = value
 	}
 
-	return &result, nil
+	return args, nil
 }
 
-func LoadDotenv(etcd *store.Etcd, username, appName string, dotenvFile io.Reader) error {
+// LoadDotenv loads environment variables from .env file
+func LoadDotenv(username, appName string, dotenvFile io.Reader) error {
 	scanner := bufio.NewScanner(dotenvFile)
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		matchResult := DotenvLine.FindStringSubmatch(line)
+		matchResult := dotenvLine.FindStringSubmatch(line)
 
 		if len(matchResult) == 0 {
 			continue
@@ -63,7 +89,7 @@ func LoadDotenv(etcd *store.Etcd, username, appName string, dotenvFile io.Reader
 
 		key, value := matchResult[1], matchResult[2]
 
-		if err := Create(etcd, username, appName, key, value); err != nil {
+		if err := Create(username, appName, key, value); err != nil {
 			return err
 		}
 	}
