@@ -120,7 +120,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	buildArgs, err := arg.List(self.etcd, username, appName)
+	buildArgs, err := arg.List(username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)

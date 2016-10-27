@@ -31,7 +31,7 @@ func (self *ArgController) Delete(c *gin.Context) {
 	appName := c.Param("appName")
 	key := c.PostForm("key")
 
-	err := arg.Delete(self.etcd, username, appName, key)
+	err := arg.Delete(username, appName, key)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -61,7 +61,7 @@ func (self *ArgController) New(c *gin.Context) {
 	key := c.PostForm("key")
 	value := c.PostForm("value")
 
-	err := arg.Create(self.etcd, username, appName, key, value)
+	err := arg.Create(username, appName, key, value)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)

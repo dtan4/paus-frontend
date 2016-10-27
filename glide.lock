@@ -1,6 +1,12 @@
-hash: fad13d60f5ed322b2140e79152f220c280cb6680bd29352052f789c687d3d94f
-updated: 2016-06-30T14:49:55.871252+09:00
+hash: 032c1b9e4ee3e61eb298219b75f95599e4abe501ed07f2765950b4da3c477450
+updated: 2016-10-27T16:14:50.448624184+09:00
 imports:
+- name: github.com/aws/aws-sdk-go
+  version: 32cdc88aa5cd2ba4afa049da884aaf9a3d103ef4
+  subpackages:
+  - aws
+  - aws/session
+  - service/dynamodb
 - name: github.com/boj/redistore
   version: fc113767cd6b051980f260d6dbe84b2740c46ab0
 - name: github.com/coreos/etcd
@@ -12,8 +18,8 @@ imports:
 - name: github.com/garyburd/redigo
   version: 8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13
   subpackages:
-  - redis
   - internal
+  - redis
 - name: github.com/gin-gonic/contrib
   version: 120df5cf76f14a246b04f0e35d5ee029b14d8dfb
   subpackages:
@@ -46,7 +52,7 @@ imports:
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
 - name: github.com/pkg/errors
-  version: 01fa4104b9c248c8945d14d9f128454d5b28d595
+  version: 17b591df37844cde689f4d5813e5cea0927d8dd2
 - name: github.com/ugorji/go
   version: a396ed22fc049df733440d90efe17475e3929ccb
   subpackages:
@@ -63,13 +69,13 @@ imports:
 - name: google.golang.org/appengine
   version: e234e71924d4aa52444bc76f2f831f13fa1eca60
   subpackages:
-  - urlfetch
   - internal
-  - internal/urlfetch
   - internal/base
   - internal/datastore
   - internal/log
   - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
 - name: gopkg.in/go-playground/validator.v8
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
-devImports: []
+testImports: []
