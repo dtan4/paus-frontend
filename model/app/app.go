@@ -3,27 +3,29 @@ package app
 import (
 	"strings"
 
+	"github.com/dtan4/paus-frontend/aws"
 	"github.com/dtan4/paus-frontend/model/healthcheck"
 	"github.com/dtan4/paus-frontend/store"
 )
 
 const (
+	appsTable    = "paus-apps"
+	userAppIndex = "user-app-index"
+
 	defaultHealthcheckPath     = "/"
 	defaultHealthcheckInterval = 5
 	defaultHealthcheckMaxTry   = 10
 )
 
-func Create(etcd *store.Etcd, username, appName string) error {
-	appKey := "/paus/users/" + username + "/apps/" + appName
+// Create creates new app
+func Create(username, appName string) error {
+	dynamodb := aws.NewDynamoDB()
 
-	if err := etcd.Mkdir(appKey); err != nil {
+	if err := dynamodb.Update(appsTable, map[string]string{
+		"user": username,
+		"app":  appName,
+	}); err != nil {
 		return err
-	}
-
-	for _, resource := range []string{"build-args", "envs", "deployments"} {
-		if err := etcd.Mkdir(appKey + "/" + resource); err != nil {
-			return err
-		}
 	}
 
 	hc := healthcheck.NewHealthcheck(defaultHealthcheckPath, defaultHealthcheckInterval, defaultHealthcheckMaxTry)
@@ -35,22 +37,36 @@ func Create(etcd *store.Etcd, username, appName string) error {
 	return nil
 }
 
-func Exists(etcd *store.Etcd, username, appName string) bool {
-	return etcd.HasKey("/paus/users/" + username + "/apps/" + appName)
-}
+// Exists return whether the given app exists or not
+func Exists(username, appName string) bool {
+	dynamodb := aws.NewDynamoDB()
 
-func List(etcd *store.Etcd, username string) ([]string, error) {
-	apps, err := etcd.List("/paus/users/"+username+"/apps/", true)
-
+	items, err := dynamodb.Select(appsTable, userAppIndex, map[string]string{
+		"user": username,
+		"app":  appName,
+	})
 	if err != nil {
-		return nil, err
+		return false
 	}
 
-	result := make([]string, 0)
+	return len(items) > 0
+}
 
-	for _, app := range apps {
-		appName := strings.Replace(app, "/paus/users/"+username+"/apps/", "", 1)
-		result = append(result, appName)
+// List return all apps owned by the given user
+func List(username string) ([]string, error) {
+	dynamodb := aws.NewDynamoDB()
+
+	items, err := dynamodb.Select(appsTable, "", map[string]string{
+		"user": username,
+	})
+	if err != nil {
+		return []string{}, nil
+	}
+
+	result := []string{}
+
+	for _, attrValue := range items {
+		result = append(result, *attrValue["app"].S)
 	}
 
 	return result, nil

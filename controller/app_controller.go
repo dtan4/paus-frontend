@@ -41,7 +41,7 @@ func (self *AppController) Index(c *gin.Context) {
 		return
 	}
 
-	apps, err := app.List(self.etcd, username)
+	apps, err := app.List(username)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -97,7 +97,7 @@ func (self *AppController) Get(c *gin.Context) {
 
 	appName := c.Param("appName")
 
-	if !app.Exists(self.etcd, username, appName) {
+	if !app.Exists(username, appName) {
 		c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 			"error":   true,
 			"message": fmt.Sprintf("Application %s does not exist.", appName),
@@ -198,7 +198,7 @@ func (self *AppController) New(c *gin.Context) {
 
 	appName := c.PostForm("appName")
 
-	err := app.Create(self.etcd, username, appName)
+	err := app.Create(username, appName)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
