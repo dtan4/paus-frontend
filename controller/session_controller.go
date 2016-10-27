@@ -99,13 +99,7 @@ func (self *SessionController) Callback(c *gin.Context) {
 		}
 	}
 
-	if err := user.RegisterAccessToken(self.etcd, *u.Login, token.AccessToken); err != nil {
-		fmt.Fprintf(os.Stderr, "%+v\n", err)
-
-		c.String(http.StatusBadRequest, "Failed to register access token.")
-		return
-	}
-
+	session.Set("login", *u.Login)
 	session.Set("token", token.AccessToken)
 	session.Save()
 

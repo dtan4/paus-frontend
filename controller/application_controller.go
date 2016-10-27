@@ -20,13 +20,19 @@ func NewApplicationController(config *config.Config, etcd *store.Etcd) *Applicat
 	}
 }
 
-func (self *ApplicationController) CurrentUser(c *gin.Context) string {
+// CurrentUser returns current login user
+func (ac *ApplicationController) CurrentUser(c *gin.Context) string {
 	session := sessions.Default(c)
-	token := session.Get("token")
+	loginUser := session.Get("login")
 
-	if token == nil {
+	if loginUser == nil {
 		return ""
 	}
 
-	return user.GetLoginUser(self.etcd, token.(string))
+	if !user.Exists(loginUser.(string)) {
+		session.Delete("login")
+		return ""
+	}
+
+	return loginUser.(string)
 }

@@ -5,7 +5,6 @@ import (
 	"os/exec"
 
 	"github.com/dtan4/paus-frontend/aws"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
@@ -54,16 +53,6 @@ func GetAvaterURL(username string) (string, error) {
 	}
 
 	return *items[0]["avater-url"].S, nil
-}
-
-func GetLoginUser(etcd *store.Etcd, accessToken string) string {
-	username, _ := etcd.Get("/paus/sessions/" + accessToken)
-
-	return username
-}
-
-func RegisterAccessToken(etcd *store.Etcd, username, accessToken string) error {
-	return etcd.Set("/paus/sessions/"+accessToken, username)
 }
 
 func UploadPublicKey(username, pubKey string) (string, error) {
