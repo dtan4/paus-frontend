@@ -8,7 +8,6 @@ import (
 
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/healthcheck"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,8 +15,9 @@ type HealthcheckController struct {
 	*ApplicationController
 }
 
-func NewHealthcheckController(config *config.Config, etcd *store.Etcd) *HealthcheckController {
-	return &HealthcheckController{NewApplicationController(config, etcd)}
+// NewHealthcheckController creates new HealthcheckController object
+func NewHealthcheckController(config *config.Config) *HealthcheckController {
+	return &HealthcheckController{NewApplicationController(config)}
 }
 
 func (self *HealthcheckController) Update(c *gin.Context) {

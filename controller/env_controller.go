@@ -7,7 +7,6 @@ import (
 
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/env"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,8 +14,9 @@ type EnvController struct {
 	*ApplicationController
 }
 
-func NewEnvController(config *config.Config, etcd *store.Etcd) *EnvController {
-	return &EnvController{NewApplicationController(config, etcd)}
+// NewEnvController creates new EnvController object
+func NewEnvController(config *config.Config) *EnvController {
+	return &EnvController{NewApplicationController(config)}
 }
 
 func (self *EnvController) Delete(c *gin.Context) {

@@ -11,7 +11,6 @@ import (
 	"github.com/dtan4/paus-frontend/model/env"
 	"github.com/dtan4/paus-frontend/model/healthcheck"
 	"github.com/dtan4/paus-frontend/model/user"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,8 +18,9 @@ type AppController struct {
 	*ApplicationController
 }
 
-func NewAppController(config *config.Config, etcd *store.Etcd) *AppController {
-	return &AppController{NewApplicationController(config, etcd)}
+// NewAppController creates new AppController object
+func NewAppController(config *config.Config) *AppController {
+	return &AppController{NewApplicationController(config)}
 }
 
 func (self *AppController) Index(c *gin.Context) {

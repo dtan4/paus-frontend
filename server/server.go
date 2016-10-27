@@ -3,7 +3,6 @@ package server
 import (
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/controller"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
@@ -14,7 +13,8 @@ const (
 	AppName = "paus"
 )
 
-func Run(config *config.Config, etcd *store.Etcd) {
+// Run starts web server
+func Run(config *config.Config) {
 	oauthConf := oauth2.Config{
 		ClientID:     config.GitHubClientID,
 		ClientSecret: config.GitHubClientSecret,
@@ -33,12 +33,12 @@ func Run(config *config.Config, etcd *store.Etcd) {
 	r.Static("/assets", "assets")
 	r.LoadHTMLGlob("templates/*")
 
-	rootController := controller.NewRootController(config, etcd)
-	appController := controller.NewAppController(config, etcd)
-	argController := controller.NewArgController(config, etcd)
-	envController := controller.NewEnvController(config, etcd)
-	healthcheckController := controller.NewHealthcheckController(config, etcd)
-	sessionController := controller.NewSessionController(config, etcd, oauthConf)
+	rootController := controller.NewRootController(config)
+	appController := controller.NewAppController(config)
+	argController := controller.NewArgController(config)
+	envController := controller.NewEnvController(config)
+	healthcheckController := controller.NewHealthcheckController(config)
+	sessionController := controller.NewSessionController(config, oauthConf)
 
 	r.GET("/", rootController.Index)
 

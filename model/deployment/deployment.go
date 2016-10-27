@@ -1,9 +1,6 @@
 package deployment
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/dtan4/paus-frontend/aws"
 )
 

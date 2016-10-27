@@ -7,7 +7,6 @@ import (
 
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/user"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/dtan4/paus-frontend/util"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -20,8 +19,9 @@ type SessionController struct {
 	oauthConf oauth2.Config
 }
 
-func NewSessionController(config *config.Config, etcd *store.Etcd, oauthConf oauth2.Config) *SessionController {
-	return &SessionController{NewApplicationController(config, etcd), oauthConf}
+// NewSessionController creates new SessionController object
+func NewSessionController(config *config.Config, oauthConf oauth2.Config) *SessionController {
+	return &SessionController{NewApplicationController(config), oauthConf}
 }
 
 func (self *SessionController) Callback(c *gin.Context) {

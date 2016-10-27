@@ -7,7 +7,6 @@ import (
 
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/user"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,8 +14,9 @@ type RootController struct {
 	*ApplicationController
 }
 
-func NewRootController(config *config.Config, etcd *store.Etcd) *RootController {
-	return &RootController{NewApplicationController(config, etcd)}
+// NewRootController creates new RootController object
+func NewRootController(config *config.Config) *RootController {
+	return &RootController{NewApplicationController(config)}
 }
 
 func (self *RootController) Index(c *gin.Context) {
