@@ -90,8 +90,8 @@ func (self *SessionController) Callback(c *gin.Context) {
 		}
 	}
 
-	if !user.Exists(self.etcd, *u.Login) {
-		if err := user.Create(self.etcd, u); err != nil {
+	if !user.Exists(*u.Login) {
+		if err := user.Create(u); err != nil {
 			fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 			c.String(http.StatusBadRequest, "Failed to create user.")

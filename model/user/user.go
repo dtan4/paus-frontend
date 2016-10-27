@@ -4,37 +4,56 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/dtan4/paus-frontend/aws"
 	"github.com/dtan4/paus-frontend/store"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
 
-func Create(etcd *store.Etcd, user *github.User) error {
-	username := *user.Login
+const (
+	usersTable = "paus-users"
+)
 
-	if err := etcd.Mkdir("/paus/users/" + username); err != nil {
-		return err
-	}
+// Create creates new user
+func Create(user *github.User) error {
+	dynamodb := aws.NewDynamoDB()
 
-	if err := etcd.Set("/paus/users/"+username+"/avater_url", *user.AvatarURL); err != nil {
-		return err
-	}
-
-	if err := etcd.Mkdir("/paus/users/" + username + "/apps"); err != nil {
+	if err := dynamodb.Update(usersTable, map[string]string{
+		"user":       *user.Login,
+		"avater-url": *user.AvatarURL,
+	}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func Exists(etcd *store.Etcd, username string) bool {
-	return etcd.HasKey("/paus/users/" + username)
+// Exists returns whether the given user exists or not
+func Exists(username string) bool {
+	dynamodb := aws.NewDynamoDB()
+
+	items, err := dynamodb.Select(usersTable, "", map[string]string{
+		"user": username,
+	})
+	if err != nil {
+		return false
+	}
+
+	return len(items) > 0
 }
 
-func GetAvaterURL(etcd *store.Etcd, username string) string {
-	avaterURL, _ := etcd.Get("/paus/users/" + username + "/avater_url")
+// GetAvaterURL returns avater URL of the given user
+func GetAvaterURL(username string) (string, error) {
+	dynamodb := aws.NewDynamoDB()
 
-	return avaterURL
+	items, err := dynamodb.Select(usersTable, "", map[string]string{
+		"user": username,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return *items[0]["avater-url"].S, nil
 }
 
 func GetLoginUser(etcd *store.Etcd, accessToken string) string {

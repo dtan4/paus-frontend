@@ -32,7 +32,7 @@ func (self *AppController) Index(c *gin.Context) {
 		return
 	}
 
-	if !user.Exists(self.etcd, username) {
+	if !user.Exists(username) {
 		c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 			"error":   true,
 			"message": fmt.Sprintf("User %s does not exist.", username),
@@ -54,10 +54,22 @@ func (self *AppController) Index(c *gin.Context) {
 		return
 	}
 
+	avaterURL, err := user.GetAvaterURL(username)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
+
+		c.HTML(http.StatusInternalServerError, "apps.tmpl", gin.H{
+			"error":   true,
+			"message": "Failed to get avater URL.",
+		})
+
+		return
+	}
+
 	c.HTML(http.StatusOK, "apps.tmpl", gin.H{
 		"error":      false,
 		"apps":       apps,
-		"avater_url": user.GetAvaterURL(self.etcd, username),
+		"avater_url": avaterURL,
 		"logged_in":  true,
 		"username":   username,
 	})
@@ -74,7 +86,7 @@ func (self *AppController) Get(c *gin.Context) {
 		return
 	}
 
-	if !user.Exists(self.etcd, username) {
+	if !user.Exists(username) {
 		c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 			"error":   true,
 			"message": fmt.Sprintf("User %s does not exist.", username),
@@ -149,10 +161,22 @@ func (self *AppController) Get(c *gin.Context) {
 		latestURL = app.LatestAppURLOfUser(self.config.URIScheme, self.config.BaseDomain, username, appName)
 	}
 
+	avaterURL, err := user.GetAvaterURL(username)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
+
+		c.HTML(http.StatusInternalServerError, "app.tmpl", gin.H{
+			"error":   true,
+			"message": "Failed to get avater URL.",
+		})
+
+		return
+	}
+
 	c.HTML(http.StatusOK, "app.tmpl", gin.H{
 		"error":       false,
 		"app":         appName,
-		"avater_url":  user.GetAvaterURL(self.etcd, username),
+		"avater_url":  avaterURL,
 		"buildArgs":   buildArgs,
 		"envs":        envs,
 		"healthcheck": hc,

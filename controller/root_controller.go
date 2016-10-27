@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/user"
@@ -33,7 +34,7 @@ func (self *RootController) Index(c *gin.Context) {
 		return
 	}
 
-	if !user.Exists(self.etcd, username) {
+	if !user.Exists(username) {
 		c.HTML(http.StatusNotFound, "apps.tmpl", gin.H{
 			"error":   true,
 			"message": fmt.Sprintf("User %s does not exist.", username),
@@ -42,9 +43,21 @@ func (self *RootController) Index(c *gin.Context) {
 		return
 	}
 
+	avaterURL, err := user.GetAvaterURL(username)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
+
+		c.HTML(http.StatusInternalServerError, "apps.tmpl", gin.H{
+			"error":   true,
+			"message": "Failed to get avater URL.",
+		})
+
+		return
+	}
+
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"alert":      false,
-		"avater_url": user.GetAvaterURL(self.etcd, username),
+		"avater_url": avaterURL,
 		"error":      false,
 		"logged_in":  true,
 		"message":    "",
