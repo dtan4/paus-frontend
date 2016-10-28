@@ -1,88 +1,103 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
+	"github.com/dtan4/paus-frontend/aws"
+	"github.com/dtan4/paus-frontend/model/deployment"
 	"github.com/dtan4/paus-frontend/model/healthcheck"
-	"github.com/dtan4/paus-frontend/store"
 )
 
 const (
+	appsTable    = "paus-apps"
+	userAppIndex = "user-app-index"
+
 	defaultHealthcheckPath     = "/"
 	defaultHealthcheckInterval = 5
 	defaultHealthcheckMaxTry   = 10
 )
 
-func Create(etcd *store.Etcd, username, appName string) error {
-	appKey := "/paus/users/" + username + "/apps/" + appName
+// Create creates new app
+func Create(username, appName string) error {
+	dynamodb := aws.NewDynamoDB()
 
-	if err := etcd.Mkdir(appKey); err != nil {
+	if err := dynamodb.Update(appsTable, map[string]string{
+		"user": username,
+		"app":  appName,
+	}); err != nil {
 		return err
-	}
-
-	for _, resource := range []string{"build-args", "envs", "deployments"} {
-		if err := etcd.Mkdir(appKey + "/" + resource); err != nil {
-			return err
-		}
 	}
 
 	hc := healthcheck.NewHealthcheck(defaultHealthcheckPath, defaultHealthcheckInterval, defaultHealthcheckMaxTry)
 
-	if err := healthcheck.Create(etcd, username, appName, hc); err != nil {
+	if err := healthcheck.Create(username, appName, hc); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func Exists(etcd *store.Etcd, username, appName string) bool {
-	return etcd.HasKey("/paus/users/" + username + "/apps/" + appName)
-}
+// Exists return whether the given app exists or not
+func Exists(username, appName string) bool {
+	dynamodb := aws.NewDynamoDB()
 
-func List(etcd *store.Etcd, username string) ([]string, error) {
-	apps, err := etcd.List("/paus/users/"+username+"/apps/", true)
-
+	items, err := dynamodb.Select(appsTable, userAppIndex, map[string]string{
+		"user": username,
+		"app":  appName,
+	})
 	if err != nil {
-		return nil, err
+		return false
 	}
 
-	result := make([]string, 0)
+	return len(items) > 0
+}
 
-	for _, app := range apps {
-		appName := strings.Replace(app, "/paus/users/"+username+"/apps/", "", 1)
-		result = append(result, appName)
+// List return all apps owned by the given user
+func List(username string) ([]string, error) {
+	dynamodb := aws.NewDynamoDB()
+
+	items, err := dynamodb.Select(appsTable, "", map[string]string{
+		"user": username,
+	})
+	if err != nil {
+		return []string{}, nil
+	}
+
+	result := []string{}
+
+	for _, attrValue := range items {
+		result = append(result, *attrValue["app"].S)
 	}
 
 	return result, nil
 }
 
+// URL returns the unique URL of the deployment
 func URL(uriScheme, identifier, baseDomain string) string {
 	return strings.ToLower(uriScheme + "://" + identifier + "." + baseDomain)
 }
 
-func URLs(etcd *store.Etcd, uriScheme, baseDomain, username, appName string) ([]string, error) {
-	deployments, err := etcd.List("/paus/users/"+username+"/apps/"+appName+"/deployments/", true)
-
+// URLs returns all URLs of the given app
+func URLs(uriScheme, baseDomain, username, appName string) ([]string, error) {
+	deployments, err := deployment.List(username, appName)
 	if err != nil {
-		return nil, err
+		return []string{}, nil
 	}
 
-	result := make([]string, 0)
+	result := []string{}
+
+	var identifier string
 
 	for _, deployment := range deployments {
-		revision, err := etcd.Get(deployment)
-
-		if err != nil {
-			return nil, err
-		}
-
-		identifier := username + "-" + appName + "-" + revision[0:8]
+		identifier = fmt.Sprintf("%s-%s-%s", username, appName, deployment.Revision)
 		result = append(result, URL(uriScheme, identifier, baseDomain))
 	}
 
 	return result, nil
 }
 
+// LatestAppURLOfUser returns <username>-<appname>.<basedomain> style URL
 func LatestAppURLOfUser(uriScheme, baseDomain, username, appName string) string {
 	identifier := username + "-" + appName
 

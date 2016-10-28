@@ -1,9 +1,6 @@
 package: github.com/dtan4/paus-frontend
 import:
 - package: github.com/gin-gonic/gin
-- package: github.com/coreos/etcd
-  subpackages:
-  - client
 - package: golang.org/x/net
   subpackages:
   - context
@@ -19,3 +16,9 @@ import:
 - package: github.com/gin-gonic/contrib
   subpackages:
   - sessions
+- package: github.com/aws/aws-sdk-go
+  version: ~1.4.20
+  subpackages:
+  - aws
+  - aws/session
+  - service/dynamodb

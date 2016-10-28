@@ -7,7 +7,6 @@ import (
 
 	"github.com/dtan4/paus-frontend/config"
 	"github.com/dtan4/paus-frontend/model/user"
-	"github.com/dtan4/paus-frontend/store"
 	"github.com/dtan4/paus-frontend/util"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -20,8 +19,9 @@ type SessionController struct {
 	oauthConf oauth2.Config
 }
 
-func NewSessionController(config *config.Config, etcd *store.Etcd, oauthConf oauth2.Config) *SessionController {
-	return &SessionController{NewApplicationController(config, etcd), oauthConf}
+// NewSessionController creates new SessionController object
+func NewSessionController(config *config.Config, oauthConf oauth2.Config) *SessionController {
+	return &SessionController{NewApplicationController(config), oauthConf}
 }
 
 func (self *SessionController) Callback(c *gin.Context) {
@@ -90,8 +90,8 @@ func (self *SessionController) Callback(c *gin.Context) {
 		}
 	}
 
-	if !user.Exists(self.etcd, *u.Login) {
-		if err := user.Create(self.etcd, u); err != nil {
+	if !user.Exists(*u.Login) {
+		if err := user.Create(u); err != nil {
 			fmt.Fprintf(os.Stderr, "%+v\n", err)
 
 			c.String(http.StatusBadRequest, "Failed to create user.")
@@ -99,13 +99,7 @@ func (self *SessionController) Callback(c *gin.Context) {
 		}
 	}
 
-	if err := user.RegisterAccessToken(self.etcd, *u.Login, token.AccessToken); err != nil {
-		fmt.Fprintf(os.Stderr, "%+v\n", err)
-
-		c.String(http.StatusBadRequest, "Failed to register access token.")
-		return
-	}
-
+	session.Set("login", *u.Login)
 	session.Set("token", token.AccessToken)
 	session.Save()
 

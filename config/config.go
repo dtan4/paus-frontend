@@ -12,7 +12,6 @@ const (
 
 type Config struct {
 	BaseDomain         string `envconfig:"base_domain"   required:"true"`
-	EtcdEndpoint       string `envconfig:"etcd_endpoint" default:"http://localhost:2379"`
 	GitHubClientID     string `envconfig:"github_client_id" required:"true"`
 	GitHubClientSecret string `envconfig:"github_client_secret" required:"true"`
 	ReleaseMode        bool   `envconfig:"release_mode"  default:"false"`
