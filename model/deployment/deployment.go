@@ -10,19 +10,19 @@ const (
 )
 
 type Deployment struct {
+	Username   string
+	AppName    string
 	ServiceArn string
 	Revision   string
-	Host       string
-	Port       string
 }
 
 // NewDeployment creates new Deployment object
-func NewDeployment(serviceArn, revision, host, port string) *Deployment {
+func NewDeployment(username, appName, serviceArn, revision string) *Deployment {
 	return &Deployment{
+		Username:   username,
+		AppName:    appName,
 		ServiceArn: serviceArn,
 		Revision:   revision,
-		Host:       host,
-		Port:       port,
 	}
 }
 
@@ -40,14 +40,12 @@ func List(username, appName string) ([]*Deployment, error) {
 
 	deployments := []*Deployment{}
 
-	var serviceArn, revision, host, port string
+	var serviceArn, revision string
 
 	for _, attrValue := range items {
 		serviceArn = *attrValue["service-arn"].S
 		revision = *attrValue["revision"].S
-		host = *attrValue["host"].S
-		port = *attrValue["port"].S
-		deployments = append(deployments, NewDeployment(serviceArn, revision, host, port))
+		deployments = append(deployments, NewDeployment(username, appName, serviceArn, revision))
 	}
 
 	return deployments, nil
